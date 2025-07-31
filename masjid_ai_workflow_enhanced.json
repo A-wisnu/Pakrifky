@@ -1,0 +1,1201 @@
+{
+  "workflow": {
+    "metadata": {
+      "name": "Masjid AI Enhanced Workflow",
+      "version": "3.0.0",
+      "description": "Enhanced workflow dengan AI chatbot, smart features, dan cloud storage",
+      "platform": "cloud",
+      "language": "id",
+      "created": "2024-01-15",
+      "enhanced_features": [
+        "OpenRouter AI Chatbot",
+        "Supabase Cloud Storage", 
+        "Smart Reminder System",
+        "Donation Tracking",
+        "Learning Analytics",
+        "Voice Message Support",
+        "Multi-language Support"
+      ]
+    },
+    "api_credentials": {
+      "openrouter": {
+        "api_key": "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",
+        "base_url": "https://openrouter.ai/api/v1",
+        "model": "moonshotai/kimi-k2:free",
+        "max_tokens": 1000,
+        "temperature": 0.7
+      },
+      "supabase": {
+        "url": "https://bvaxxlmhrzocbrqiykoqul.supabase.co",
+        "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXh4bG1ocnpvY2JycWl5a29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NjMxMDMsImV4cCI6MjA2OTQzOTEwM30.GjDhx8BUR7Y4FUS2PZalEeDhKVt_zQWGTEV_5nKKgrg",
+        "database_tables": {
+          "users": "masjid_users",
+          "conversations": "ai_conversations", 
+          "donations": "donation_history",
+          "reminders": "prayer_reminders",
+          "analytics": "usage_analytics",
+          "kajian": "kajian_schedule",
+          "feedback": "user_feedback"
+        }
+      },
+      "whatsapp_alternative": {
+        "api_url": "{{WHATSAPP_API_URL}}",
+        "api_key": "{{WHATSAPP_API_KEY}}",
+        "webhook_verify": "{{WEBHOOK_VERIFY_TOKEN}}",
+        "supported_providers": ["Fonnte", "Woowa", "WhatSender", "Custom API"]
+      }
+    },
+    "global_data": {
+      "masjid_info": {
+        "nama": "Masjid Al-Ikhlas",
+        "alamat": "Jl. Raya Masjid No. 123, Jakarta Selatan 12345",
+        "koordinat": {"lat": -6.2088, "lng": 106.8456},
+        "kota": "Jakarta",
+        "zona_waktu": "Asia/Jakarta",
+        "kontak": {
+          "telepon": "+62-21-12345678",
+          "whatsapp": "+62-812-3456-7890",
+          "email": "info@masjidalukhlas.id",
+          "website": "https://masjidalukhlas.id",
+          "instagram": "@masjidalukhlas",
+          "youtube": "Masjid Al-Ikhlas Official"
+        },
+        "takmir": {
+          "ketua": "Bapak Ahmad Suryadi",
+          "sekretaris": "Bapak Muhammad Ali", 
+          "bendahara": "Bapak Abdullah Rahman",
+          "kontak_takmir": "+62-812-3456-7890"
+        },
+        "ustadz": [
+          {
+            "nama": "Ustadz Ahmad Dahlan",
+            "spesialisasi": ["Fiqh", "Akhlaq", "Tafsir"],
+            "jadwal": "Senin-Kamis 19:00-21:00",
+            "kontak": "+62-813-1111-2222"
+          },
+          {
+            "nama": "Ustadz Muhammad Ridwan", 
+            "spesialisasi": ["Muamalah", "Ekonomi Islam", "Keluarga"],
+            "jadwal": "Selasa-Jumat 08:00-12:00",
+            "kontak": "+62-813-3333-4444"
+          },
+          {
+            "nama": "Ustadz Abdullah Syukur",
+            "spesialisasi": ["Tauhid", "Tasawuf", "Dakwah"],
+            "jadwal": "Rabu-Sabtu 14:00-17:00", 
+            "kontak": "+62-813-5555-6666"
+          }
+        ],
+        "fasilitas": [
+          "Tempat Wudhu Pria & Wanita Terpisah",
+          "Parkir Motor & Mobil (200 slot)",
+          "AC Central & Kipas Angin",
+          "Sound System Digital",
+          "Perpustakaan Mini (1000+ buku)",
+          "Ruang Kajian (kapasitas 100 orang)",
+          "Aula Serbaguna (kapasitas 300 orang)",
+          "Klinik Kesehatan Gratis",
+          "Taman Bermain Anak",
+          "Kantin Halal",
+          "Wifi Gratis",
+          "CCTV 24 jam",
+          "Lift untuk Disabilitas"
+        ],
+        "jadwal_operasional": {
+          "senin_kamis": "04:30 - 22:00 WIB",
+          "jumat": "04:30 - 23:00 WIB",
+          "sabtu_minggu": "04:30 - 22:30 WIB",
+          "ramadan": "04:00 - 24:00 WIB"
+        }
+      },
+      "donation_info": {
+        "bank_accounts": [
+          {
+            "bank": "BCA",
+            "nomor": "1234567890",
+            "atas_nama": "Masjid Al-Ikhlas",
+            "cabang": "Jakarta Selatan",
+            "swift": "CENAIDJA"
+          },
+          {
+            "bank": "Mandiri", 
+            "nomor": "0987654321",
+            "atas_nama": "Masjid Al-Ikhlas",
+            "cabang": "Jakarta Selatan",
+            "swift": "BMRIIDJA"
+          },
+          {
+            "bank": "BRI",
+            "nomor": "5555666677778888",
+            "atas_nama": "Masjid Al-Ikhlas", 
+            "cabang": "Jakarta Selatan",
+            "swift": "BRINIDJA"
+          }
+        ],
+        "e_wallets": [
+          {"platform": "GoPay", "nomor": "+62-812-3456-7890"},
+          {"platform": "OVO", "nomor": "+62-812-3456-7890"},
+          {"platform": "DANA", "nomor": "+62-812-3456-7890"},
+          {"platform": "ShopeePay", "nomor": "+62-812-3456-7890"}
+        ],
+        "qris": {
+          "url": "https://example.com/qris-masjid-al-ikhlas.png",
+          "description": "QRIS Donasi Masjid Al-Ikhlas"
+        },
+        "categories": [
+          {
+            "name": "Operasional Harian",
+            "description": "Listrik, air, kebersihan, keamanan",
+            "target_monthly": 15000000,
+            "suggested_amounts": [50000, 100000, 200000, 500000]
+          },
+          {
+            "name": "Renovasi & Pembangunan",
+            "description": "Perbaikan gedung dan fasilitas",
+            "target_monthly": 25000000,
+            "suggested_amounts": [100000, 250000, 500000, 1000000]
+          },
+          {
+            "name": "Program Pendidikan",
+            "description": "Kajian, perpustakaan, beasiswa",
+            "target_monthly": 10000000,
+            "suggested_amounts": [25000, 50000, 100000, 250000]
+          },
+          {
+            "name": "Bantuan Sosial",
+            "description": "Membantu jamaah kurang mampu",
+            "target_monthly": 20000000,
+            "suggested_amounts": [50000, 100000, 300000, 500000]
+          },
+          {
+            "name": "Zakat Fitrah",
+            "description": "Pembayaran zakat fitrah per jiwa",
+            "amount_per_person": 40000,
+            "collection_period": "Ramadan"
+          }
+        ]
+      },
+      "ai_prompts": {
+        "system_context": "Anda adalah AI Assistant untuk Masjid Al-Ikhlas. Berikan respons yang membantu, islami, dan sopan. Gunakan bahasa Indonesia yang mudah dipahami. Jika ditanya tentang Islam, berikan jawaban berdasarkan Al-Quran dan Hadits shahih. Selalu rujuk ke ustadz untuk pertanyaan fiqh yang kompleks.",
+        "islamic_context": "Anda memahami konteks Islam Indonesia, adat istiadat, dan budaya religius. Berikan nasihat yang sesuai syariat dan kondisi lokal.",
+        "conversation_starters": [
+          "Assalamualaikum! Ada yang bisa saya bantu?",
+          "Selamat datang di Masjid Al-Ikhlas! Apa yang ingin Anda ketahui?",
+          "Halo! Saya siap membantu dengan informasi masjid dan pertanyaan seputar Islam."
+        ]
+      }
+    },
+    "nodes": {
+      "webhook_receiver": {
+        "id": "WR001",
+        "type": "webhook_processor",
+        "name": "Enhanced WhatsApp Webhook Receiver",
+        "description": "Menerima webhook dari berbagai provider WhatsApp API",
+        "config": {
+          "supported_formats": ["fonnte", "woowa", "whatsender", "custom"],
+          "message_types": ["text", "image", "audio", "video", "document", "location", "contact"],
+          "extract_fields": {
+            "basic": ["phone", "message", "timestamp", "type", "name"],
+            "extended": ["device_id", "message_id", "reply_to", "forwarded", "media_url", "location_coords"]
+          },
+          "validation": {
+            "required_fields": ["phone", "message"],
+            "phone_format": "^(\\+62|62|0)[0-9]{8,13}$"
+          }
+        },
+        "connections": {
+          "text_message": "user_manager",
+          "media_message": "media_processor", 
+          "location_message": "location_handler",
+          "error": "error_handler"
+        }
+      },
+      "user_manager": {
+        "id": "UM001",
+        "type": "user_processor",
+        "name": "User Management & Supabase Integration",
+        "description": "Mengelola data user dan integrasi dengan Supabase",
+        "config": {
+          "supabase_operations": {
+            "upsert_user": {
+              "table": "masjid_users",
+              "fields": ["phone", "name", "first_interaction", "last_interaction", "total_interactions", "preferred_language", "location", "is_active"],
+              "on_conflict": "phone"
+            },
+            "log_interaction": {
+              "table": "usage_analytics", 
+              "fields": ["user_phone", "interaction_type", "timestamp", "intent", "response_time"]
+            }
+          },
+          "user_preferences": {
+            "prayer_reminders": false,
+            "kajian_notifications": false,
+            "language": "id",
+            "greeting_style": "formal"
+          },
+          "new_user_welcome": {
+            "enabled": true,
+            "message": "Selamat datang di Masjid Al-Ikhlas! 🕌\n\nSaya adalah AI Assistant yang siap membantu Anda 24/7.\n\n📝 Ketik 'menu' untuk melihat layanan tersedia\n🤖 Atau langsung chat untuk bertanya apa saja!\n\n🤲 Barakallahu fiikum!"
+          }
+        },
+        "connections": {
+          "new_user": "new_user_onboarding",
+          "existing_user": "input_validator",
+          "error": "error_handler"
+        }
+      },
+      "new_user_onboarding": {
+        "id": "NUO001",
+        "type": "onboarding_processor",
+        "name": "New User Onboarding Flow",
+        "description": "Proses onboarding untuk user baru",
+        "config": {
+          "onboarding_steps": [
+            {
+              "step": 1,
+              "message": "{{global_data.ai_prompts.conversation_starters[0]}}\n\nSaya lihat ini pertama kali Anda menggunakan layanan kami. Mari saya kenalkan dulu! 😊",
+              "collect_data": ["name"]
+            },
+            {
+              "step": 2, 
+              "message": "Terima kasih {{user.name}}! 🙏\n\nApakah Anda ingin mendapat reminder waktu shalat?\n\nBalas 'ya' atau 'tidak'",
+              "collect_data": ["prayer_reminder_preference"]
+            },
+            {
+              "step": 3,
+              "message": "Perfect! Sekarang Anda sudah terdaftar.\n\n📱 Ketik 'menu' kapan saja untuk melihat layanan\n🤖 Atau langsung chat untuk bertanya\n\n🕌 Selamat bergabung di komunitas Masjid Al-Ikhlas!"
+            }
+          ],
+          "supabase_save": {
+            "table": "masjid_users",
+            "final_step_only": true
+          }
+        },
+        "connections": {
+          "completed": "greeting_handler",
+          "error": "error_handler"
+        }
+      },
+      "media_processor": {
+        "id": "MP001",
+        "type": "media_handler",
+        "name": "Media Content Processor",
+        "description": "Memproses pesan media (gambar, audio, video, dokumen)",
+        "config": {
+          "supported_types": {
+            "image": {
+              "max_size_mb": 10,
+              "allowed_formats": ["jpg", "jpeg", "png", "webp"],
+              "ai_analysis": true
+            },
+            "audio": {
+              "max_size_mb": 16,
+              "allowed_formats": ["mp3", "wav", "ogg", "m4a"],
+              "speech_to_text": true
+            },
+            "video": {
+              "max_size_mb": 100,
+              "allowed_formats": ["mp4", "avi", "mov"],
+              "ai_analysis": false
+            },
+            "document": {
+              "max_size_mb": 20,
+              "allowed_formats": ["pdf", "doc", "docx", "txt"],
+              "text_extraction": true
+            }
+          },
+          "ai_analysis": {
+            "image_description": true,
+            "content_moderation": true,
+            "islamic_content_check": true
+          }
+        },
+        "connections": {
+          "text_extracted": "ai_chatbot",
+          "analysis_complete": "response_formatter",
+          "inappropriate_content": "content_moderator",
+          "error": "error_handler"
+        }
+      },
+      "location_handler": {
+        "id": "LH001",
+        "type": "location_processor", 
+        "name": "Location & Navigation Handler",
+        "description": "Menangani lokasi dan navigasi ke masjid",
+        "config": {
+          "masjid_location": {
+            "lat": -6.2088,
+            "lng": 106.8456,
+            "address": "{{global_data.masjid_info.alamat}}"
+          },
+          "services": {
+            "distance_calculation": true,
+            "navigation_links": {
+              "google_maps": "https://maps.google.com/?q=-6.2088,106.8456",
+              "waze": "https://waze.com/ul?ll=-6.2088,106.8456",
+              "grab": "https://grab.com/id/location?lat=-6.2088&lng=106.8456"
+            },
+            "nearby_places": {
+              "radius_km": 2,
+              "types": ["parking", "restaurant", "atm", "hospital"]
+            }
+          },
+          "response_template": "📍 **Lokasi {{global_data.masjid_info.nama}}**\n\n🏠 {{global_data.masjid_info.alamat}}\n📏 Jarak dari Anda: {{distance}} km\n⏱️ Estimasi waktu: {{duration}}\n\n🗺️ **Navigasi:**\n📱 Google Maps: {{navigation.google_maps}}\n🚗 Waze: {{navigation.waze}}\n🛵 Grab: {{navigation.grab}}\n\n🚗 **Parkir tersedia:** {{fasilitas.parking}}\n📞 **Kontak:** {{kontak.whatsapp}}"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "input_validator": {
+        "id": "IV001",
+        "type": "validator",
+        "name": "Enhanced Input Validator",
+        "description": "Validasi input dengan rate limiting dan content filtering",
+        "config": {
+          "validations": {
+            "message_length": {"min": 1, "max": 2000},
+            "language_detection": true,
+            "spam_detection": {
+              "enabled": true,
+              "repeated_messages": 3,
+              "time_window_minutes": 5
+            },
+            "inappropriate_content": {
+              "enabled": true,
+              "blocked_words": ["spam", "scam", "fraud"],
+              "islamic_compliance": true
+            }
+          },
+          "rate_limiting": {
+            "per_user": {"messages_per_minute": 15, "burst_allowance": 5},
+            "global": {"messages_per_second": 100}
+          },
+          "supabase_logging": {
+            "table": "usage_analytics",
+            "log_all_attempts": true
+          }
+        },
+        "connections": {
+          "valid": "intent_classifier",
+          "invalid": "error_handler",
+          "rate_limited": "rate_limit_handler",
+          "inappropriate": "content_moderator"
+        }
+      },
+      "intent_classifier": {
+        "id": "IC001",
+        "type": "ai_classifier",
+        "name": "Enhanced Intent Classifier",
+        "description": "AI-powered intent classification dengan machine learning",
+        "config": {
+          "classification_method": "hybrid_ai",
+          "confidence_threshold": 0.6,
+          "fallback_intent": "ai_chatbot",
+          "openrouter_classification": {
+            "enabled": true,
+            "model": "{{api_credentials.openrouter.model}}",
+            "prompt": "Klasifikasikan intent dari pesan berikut dalam konteks masjid: '{{message}}'. Berikan salah satu: jadwal_shalat, kajian_info, donasi_infaq, acara_kegiatan, informasi_umum, daftar_nikah, konsultasi_agama, reminder_shalat, feedback_komplain, ai_chat, salam_greeting. Jika tidak yakin, pilih ai_chat."
+          },
+          "intents": {
+            "jadwal_shalat": {
+              "keywords": [
+                "jadwal shalat", "waktu shalat", "adzan", "azan", "prayer time",
+                "subuh", "fajr", "dzuhur", "dhuhr", "ashar", "asr", 
+                "magrib", "maghrib", "isya", "isha", "sholat", "solat"
+              ],
+              "patterns": [
+                "kapan.*shalat", "jam.*shalat", "waktu.*adzan", "jadwal.*hari.*ini",
+                "prayer.*time", "when.*prayer", "shalat.*jam", "adzan.*kapan"
+              ],
+              "confidence_boost": 0.2
+            },
+            "kajian_info": {
+              "keywords": [
+                "kajian", "pengajian", "ceramah", "kuliah", "tausiah", "taklim",
+                "ustadz", "ustaz", "kiai", "kyai", "guru", "penceramah",
+                "islamic lecture", "religious study", "quran study", "hadits"
+              ],
+              "patterns": [
+                "kajian.*hari", "pengajian.*minggu", "ustadz.*ceramah", "kuliah.*agama",
+                "ada.*kajian", "jadwal.*pengajian", "ceramah.*kapan", "belajar.*islam"
+              ]
+            },
+            "donasi_infaq": {
+              "keywords": [
+                "donasi", "infaq", "infak", "sedekah", "sodaqoh", "zakat", "fitrah",
+                "sumbangan", "bantuan", "charity", "donation", "transfer", "bayar",
+                "rekening", "account", "qris", "gopay", "ovo", "dana", "shopeepay"
+              ],
+              "patterns": [
+                "mau.*donasi", "cara.*infaq", "transfer.*zakat", "bayar.*zakat",
+                "rekening.*masjid", "want.*donate", "how.*donate", "sumbang.*uang"
+              ]
+            },
+            "acara_kegiatan": {
+              "keywords": [
+                "acara", "event", "kegiatan", "agenda", "program", "aktivitas",
+                "festival", "perayaan", "celebration", "activity", "schedule",
+                "bakti sosial", "volunteer", "community service", "gotong royong",
+                "halal bihalal", "buka bersama", "takbiran", "qurban"
+              ],
+              "patterns": [
+                "acara.*apa", "kegiatan.*minggu", "agenda.*bulan", "event.*kapan",
+                "ada.*acara", "program.*apa", "what.*event", "kegiatan.*ramadan"
+              ]
+            },
+            "informasi_umum": {
+              "keywords": [
+                "info", "informasi", "alamat", "lokasi", "address", "location",
+                "kontak", "contact", "telepon", "phone", "email", "website",
+                "jam buka", "operating hours", "fasilitas", "facility", "tentang",
+                "sejarah", "profil", "takmir", "pengurus"
+              ],
+              "patterns": [
+                "dimana.*masjid", "alamat.*masjid", "kontak.*takmir", "jam.*buka",
+                "where.*mosque", "contact.*mosque", "how.*reach", "fasilitas.*apa"
+              ]
+            },
+            "daftar_nikah": {
+              "keywords": [
+                "nikah", "menikah", "akad", "pernikahan", "marriage", "wedding",
+                "daftar nikah", "syarat nikah", "prosedur nikah", "dokumen nikah",
+                "surat nikah", "ijab kabul", "walimah", "prnikahan"
+              ],
+              "patterns": [
+                "mau.*nikah", "daftar.*akad", "syarat.*menikah", "prosedur.*nikah",
+                "dokumen.*nikah", "want.*marry", "marriage.*requirements", "nikah.*di.*masjid"
+              ]
+            },
+            "konsultasi_agama": {
+              "keywords": [
+                "konsultasi", "consultation", "tanya", "ask", "bimbingan", "guidance",
+                "nasihat", "advice", "masalah", "problem", "fiqh", "syariat",
+                "hukum islam", "fatwa", "ustadz", "curhat", "sharing"
+              ],
+              "patterns": [
+                "mau.*tanya", "butuh.*bantuan", "konsultasi.*agama", "bimbingan.*rohani",
+                "need.*help", "religious.*guidance", "tanya.*ustadz", "hukum.*nya"
+              ]
+            },
+            "reminder_shalat": {
+              "keywords": [
+                "reminder", "pengingat", "notifikasi", "alarm", "alert",
+                "ingatkan", "notification", "subscribe", "daftar", "aktifkan"
+              ],
+              "patterns": [
+                "ingatkan.*shalat", "reminder.*prayer", "notif.*adzan", "pengingat.*shalat",
+                "aktifkan.*reminder", "daftar.*notifikasi"
+              ]
+            },
+            "feedback_komplain": {
+              "keywords": [
+                "komplain", "keluhan", "masalah", "kritik", "saran", "feedback",
+                "complaint", "issue", "problem", "suggestion", "perbaikan", "kotor",
+                "rusak", "tidak bersih", "pelayanan"
+              ],
+              "patterns": [
+                "komplain.*tentang", "ada.*masalah", "tidak.*puas", "perlu.*diperbaiki",
+                "kotor.*sekali", "rusak.*ini", "pelayanan.*buruk"
+              ]
+            },
+            "ai_chat": {
+              "keywords": [
+                "chat", "ngobrol", "cerita", "tanya", "gimana", "kenapa", "apa itu",
+                "jelaskan", "bantu", "help", "question", "islam", "agama", "doa",
+                "ayat", "hadits", "nabi", "allah", "quran"
+              ],
+              "patterns": [
+                "tanya.*dong", "gimana.*sih", "apa.*itu", "kenapa.*ya", "boleh.*gak",
+                "islam.*itu", "doa.*untuk", "ayat.*tentang", "hadits.*tentang"
+              ]
+            },
+            "salam_greeting": {
+              "keywords": [
+                "assalamualaikum", "assalamu alaikum", "salam", "peace",
+                "halo", "hello", "hi", "hai", "selamat", "good morning",
+                "good afternoon", "morning", "afternoon", "evening", "test", "hei"
+              ],
+              "patterns": [
+                "assalamualaikum.*", "salam.*", "selamat.*", "halo.*",
+                "^hi$", "^hello$", "good.*", "^test$", "^hai$"
+              ]
+            }
+          },
+          "learning_system": {
+            "enabled": true,
+            "supabase_feedback": {
+              "table": "ai_conversations",
+              "store_classifications": true,
+              "improve_accuracy": true
+            }
+          }
+        },
+        "connections": {
+          "jadwal_shalat": "prayer_handler",
+          "kajian_info": "kajian_handler",
+          "donasi_infaq": "donation_handler",
+          "acara_kegiatan": "event_handler",
+          "informasi_umum": "info_handler",
+          "daftar_nikah": "marriage_handler",
+          "konsultasi_agama": "consultation_handler",
+          "reminder_shalat": "reminder_handler",
+          "feedback_komplain": "feedback_handler",
+          "ai_chat": "ai_chatbot",
+          "salam_greeting": "greeting_handler",
+          "unknown": "ai_chatbot"
+        }
+      },
+      "ai_chatbot": {
+        "id": "AI001",
+        "type": "ai_chatbot",
+        "name": "OpenRouter AI Chatbot",
+        "description": "Chatbot AI menggunakan OpenRouter dengan model Moonshot AI",
+        "config": {
+          "api_config": {
+            "base_url": "{{api_credentials.openrouter.base_url}}",
+            "api_key": "{{api_credentials.openrouter.api_key}}",
+            "model": "{{api_credentials.openrouter.model}}",
+            "max_tokens": "{{api_credentials.openrouter.max_tokens}}",
+            "temperature": "{{api_credentials.openrouter.temperature}}"
+          },
+          "system_prompt": "{{global_data.ai_prompts.system_context}}\n\nInformasi Masjid:\n- Nama: {{global_data.masjid_info.nama}}\n- Alamat: {{global_data.masjid_info.alamat}}\n- Kontak: {{global_data.masjid_info.kontak.whatsapp}}\n- Website: {{global_data.masjid_info.kontak.website}}\n\nUstadz yang tersedia:\n{{#each global_data.masjid_info.ustadz}}\n- {{nama}} ({{spesialisasi}}) - {{jadwal}}\n{{/each}}\n\n{{global_data.ai_prompts.islamic_context}}",
+          "conversation_context": {
+            "enabled": true,
+            "max_history": 10,
+            "supabase_storage": {
+              "table": "ai_conversations",
+              "fields": ["user_phone", "message", "response", "timestamp", "model_used", "tokens_used"]
+            }
+          },
+          "response_enhancement": {
+            "add_islamic_greeting": true,
+            "include_masjid_context": true,
+            "suggest_related_services": true,
+            "max_response_length": 1500
+          },
+          "fallback_responses": [
+            "Maaf, saya sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat.",
+            "Untuk pertanyaan yang lebih kompleks, silakan hubungi ustadz kami di {{global_data.masjid_info.kontak.whatsapp}}",
+            "Saya akan mempelajari pertanyaan Anda. Sementara itu, ketik 'menu' untuk melihat layanan tersedia."
+          ]
+        },
+        "connections": {
+          "success": "response_formatter",
+          "error": "fallback_handler"
+        }
+      },
+      "prayer_handler": {
+        "id": "PH001",
+        "type": "prayer_processor",
+        "name": "Enhanced Prayer Time Handler",
+        "description": "Handler jadwal shalat dengan reminder dan notifikasi",
+        "config": {
+          "api_sources": {
+            "primary": "https://api.aladhan.com/v1/timingsByCity?city={{global_data.masjid_info.kota}}&country=Indonesia&method=2",
+            "backup": "https://api.pray.zone/v2/times/today.json?city={{global_data.masjid_info.kota}}"
+          },
+          "location_config": {
+            "city": "{{global_data.masjid_info.kota}}",
+            "timezone": "{{global_data.masjid_info.zona_waktu}}",
+            "calculation_method": 2,
+            "hijri_adjustment": 0
+          },
+          "fallback_times": {
+            "fajr": "04:30", "sunrise": "05:45", "dhuhr": "12:15",
+            "asr": "15:30", "maghrib": "18:45", "isha": "20:00"
+          },
+          "response_templates": {
+            "daily": "🕌 *Jadwal Shalat {{date}}*\n📍 {{global_data.masjid_info.nama}}, {{global_data.masjid_info.kota}}\n\n🌅 Subuh: {{fajr}}\n🌄 Syuruq: {{sunrise}}\n☀️ Dzuhur: {{dhuhr}}\n🌤️ Ashar: {{asr}}\n🌅 Magrib: {{maghrib}}\n🌙 Isya: {{isha}}\n\n📱 Aktifkan reminder? Ketik 'reminder shalat'\n🤲 {{doa_penutup}}",
+            "next_prayer": "⏰ *Shalat Selanjutnya*\n\n🕐 {{next_prayer_name}}: {{next_prayer_time}}\n⏳ {{time_remaining}} lagi\n\n📍 {{global_data.masjid_info.nama}}\n🤲 Semoga tidak terlewat!"
+          },
+          "islamic_dates": {
+            "include_hijri": true,
+            "include_islamic_events": true
+          },
+          "supabase_logging": {
+            "table": "usage_analytics",
+            "track_popular_times": true
+          }
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "reminder_handler": {
+        "id": "RH001",
+        "type": "reminder_processor",
+        "name": "Smart Prayer Reminder System",
+        "description": "Sistem pengingat shalat cerdas dengan personalisasi",
+        "config": {
+          "reminder_types": {
+            "before_prayer": {
+              "enabled": true,
+              "minutes_before": [30, 15, 5],
+              "custom_messages": true
+            },
+            "after_prayer": {
+              "enabled": true,
+              "minutes_after": [15, 60],
+              "dzikr_suggestions": true
+            }
+          },
+          "personalization": {
+            "user_timezone": true,
+            "prayer_preferences": ["all", "fajr_maghrib_only", "work_hours_only"],
+            "reminder_style": ["simple", "with_doa", "with_hadits"]
+          },
+          "supabase_config": {
+            "table": "prayer_reminders",
+            "user_settings": ["user_phone", "active", "reminder_types", "minutes_before", "style_preference"],
+            "reminder_logs": ["user_phone", "prayer_name", "reminder_time", "delivered", "timestamp"]
+          },
+          "message_templates": {
+            "fajr_before": "🌅 *Pengingat Shalat Subuh*\n\n⏰ {{minutes}} menit lagi waktu Subuh ({{prayer_time}})\n\n🤲 \"Barang siapa shalat Subuh, maka dia dalam perlindungan Allah\" (HR. Muslim)\n\n📍 {{global_data.masjid_info.nama}}",
+            "general_before": "🕐 *Pengingat Shalat {{prayer_name}}*\n\n⏰ {{minutes}} menit lagi waktu {{prayer_name}} ({{prayer_time}})\n\n🤲 Mari kita bersiap untuk menunaikan shalat\n\n📍 {{global_data.masjid_info.nama}}",
+            "after_prayer": "✅ *Setelah Shalat {{prayer_name}}*\n\n🤲 Jangan lupa dzikir dan doa setelah shalat:\n\n\"Astaghfirullah, Astaghfirullah, Astaghfirullah\"\n\n\"Allahumma antas salaam wa minkas salaam, tabarakta ya dzal jalaali wal ikraam\""
+          }
+        },
+        "connections": {
+          "subscribe": "response_formatter",
+          "unsubscribe": "response_formatter",
+          "settings": "response_formatter"
+        }
+      },
+      "donation_handler": {
+        "id": "DH001",
+        "type": "enhanced_donation_processor",
+        "name": "Smart Donation & Tracking System",
+        "description": "Sistem donasi cerdas dengan tracking dan laporan",
+        "config": {
+          "payment_methods": "{{global_data.donation_info}}",
+          "tracking_system": {
+            "enabled": true,
+            "supabase_table": "donation_history",
+            "fields": ["user_phone", "amount", "category", "method", "timestamp", "status", "reference_number"],
+            "auto_receipt": true
+          },
+          "donation_goals": {
+            "monthly_targets": true,
+            "progress_tracking": true,
+            "transparency_report": "monthly"
+          },
+          "response_templates": {
+            "full_info": "💰 *Donasi & Infaq {{global_data.masjid_info.nama}}*\n\n🏦 **Transfer Bank:**\n{{#each global_data.donation_info.bank_accounts}}\n🏧 {{bank}}: {{nomor}}\n📝 a.n {{atas_nama}}\n🏢 {{cabang}}\n\n{{/each}}📱 **E-Wallet:**\n{{#each global_data.donation_info.e_wallets}}\n💳 {{platform}}: {{nomor}}\n{{/each}}\n\n📲 **QRIS:**\n🖼️ {{global_data.donation_info.qris.description}}\n🔗 {{global_data.donation_info.qris.url}}\n\n💡 **Kategori Donasi:**\n{{#each global_data.donation_info.categories}}\n▫️ {{name}}\n   {{description}}\n   Target: Rp {{target_monthly}}/bulan\n\n{{/each}}🙏 Jazakallahu khairan!\n📞 Konfirmasi: {{global_data.masjid_info.kontak.whatsapp}}\n\n💡 Ketik 'donasi [jumlah] [kategori]' untuk tracking",
+            "quick_info": "💰 **Rekening Donasi:**\n🏧 BCA: {{global_data.donation_info.bank_accounts[0].nomor}}\n🏧 Mandiri: {{global_data.donation_info.bank_accounts[1].nomor}}\n📱 QRIS: {{global_data.donation_info.qris.url}}\n\na.n {{global_data.donation_info.bank_accounts[0].atas_nama}}\n\n📞 Konfirmasi: {{global_data.masjid_info.kontak.whatsapp}}"
+          },
+          "auto_responses": {
+            "donation_logged": "✅ *Donasi Tercatat*\n\nTerima kasih atas donasi Anda!\n💰 Jumlah: Rp {{amount}}\n📂 Kategori: {{category}}\n🔖 Ref: {{reference}}\n\n🙏 Barakallahu fiikum!\n📧 Receipt akan dikirim via email jika diperlukan.",
+            "monthly_report": "📊 *Laporan Donasi Bulan {{month}}*\n\n💰 Total Terkumpul: Rp {{total_collected}}\n🎯 Target Bulanan: Rp {{monthly_target}}\n📈 Progress: {{percentage}}%\n\n📋 **Penggunaan Dana:**\n{{#each usage_breakdown}}\n▫️ {{category}}: Rp {{amount}} ({{percentage}}%)\n{{/each}}\n\n🙏 Jazakumullahu khairan para donatur!"
+          }
+        },
+        "connections": {
+          "info_request": "response_formatter",
+          "donation_tracking": "donation_tracker",
+          "monthly_report": "report_generator"
+        }
+      },
+      "kajian_handler": {
+        "id": "KH001",
+        "type": "enhanced_kajian_processor",
+        "name": "Smart Kajian & Education System",
+        "description": "Sistem kajian cerdas dengan booking dan reminder",
+        "config": {
+          "data_source": {
+            "supabase_table": "kajian_schedule",
+            "query": "SELECT * FROM kajian_schedule WHERE tanggal >= CURRENT_DATE AND status='active' ORDER BY tanggal, waktu LIMIT 10",
+            "fields": ["id", "tanggal", "waktu", "ustadz", "tema", "kategori", "lokasi", "kapasitas", "pendaftar", "materi", "level"]
+          },
+          "booking_system": {
+            "enabled": true,
+            "max_capacity": true,
+            "waitlist": true,
+            "reminder_enabled": true
+          },
+          "categories": {
+            "fiqh": "Fiqh & Hukum Islam",
+            "akhlaq": "Akhlaq & Tasawuf", 
+            "tafsir": "Tafsir Al-Quran",
+            "hadits": "Hadits & Sirah",
+            "muamalah": "Muamalah & Ekonomi Islam",
+            "keluarga": "Keluarga & Parenting Islam",
+            "dakwah": "Dakwah & Leadership",
+            "sejarah": "Sejarah Islam"
+          },
+          "fallback_schedule": [
+            {
+              "id": "k001", "tanggal": "2024-01-15", "hari": "Senin", "waktu": "19:30-21:00",
+              "ustadz": "Ustadz Ahmad Dahlan", "tema": "Akhlaq dalam Kehidupan Sehari-hari",
+              "kategori": "akhlaq", "lokasi": "Aula Masjid", "kapasitas": 100, "pendaftar": 45,
+              "level": "Umum", "materi": "Pembahasan tentang akhlaq mulia dalam pergaulan"
+            },
+            {
+              "id": "k002", "tanggal": "2024-01-18", "hari": "Kamis", "waktu": "20:00-21:30",
+              "ustadz": "Ustadz Muhammad Ridwan", "tema": "Fiqh Muamalah: Jual Beli dalam Islam",
+              "kategori": "fiqh", "lokasi": "Ruang Kajian", "kapasitas": 80, "pendaftar": 32,
+              "level": "Menengah", "materi": "Hukum-hukum jual beli dan praktik bisnis islami"
+            },
+            {
+              "id": "k003", "tanggal": "2024-01-22", "hari": "Senin", "waktu": "19:30-21:00",
+              "ustadz": "Ustadz Abdullah Syukur", "tema": "Tafsir Surah Al-Baqarah: Ayat Kursi",
+              "kategori": "tafsir", "lokasi": "Aula Masjid", "kapasitas": 150, "pendaftar": 67,
+              "level": "Umum", "materi": "Makna dan hikmah ayat kursi dalam kehidupan"
+            }
+          ],
+          "response_templates": {
+            "list_view": "📚 *Jadwal Kajian & Pengajian*\n📍 {{global_data.masjid_info.nama}}\n\n{{#each kajian_list}}\n📅 **{{tema}}**\n🗓️ {{tanggal}} ({{hari}}) | ⏰ {{waktu}}\n👨‍🏫 {{ustadz}}\n📍 {{lokasi}} | 👥 {{pendaftar}}/{{kapasitas}} peserta\n📚 Level: {{level}} | 🏷️ {{kategori}}\n📖 {{materi}}\n🔖 ID: {{id}}\n\n{{/each}}📱 **Daftar Kajian:**\nKetik 'daftar kajian [ID]'\nContoh: 'daftar kajian k001'\n\n📞 Info: {{global_data.masjid_info.kontak.whatsapp}}\n🤲 Barakallahu fiikum!",
+            "registration_success": "✅ *Pendaftaran Kajian Berhasil*\n\n📚 {{tema}}\n📅 {{tanggal}} | ⏰ {{waktu}}\n👨‍🏫 {{ustadz}}\n📍 {{lokasi}}\n\n👤 Atas nama: {{user_name}}\n📱 Kontak: {{user_phone}}\n🎫 Nomor peserta: {{registration_number}}\n\n📢 **Pengingat:**\n• Datang 15 menit sebelum acara\n• Bawa alat tulis\n• Berpakaian sopan dan rapi\n\n📞 Info: {{global_data.masjid_info.kontak.whatsapp}}"
+          }
+        },
+        "connections": {
+          "list_kajian": "response_formatter",
+          "register_kajian": "kajian_registration",
+          "kajian_reminder": "reminder_handler"
+        }
+      },
+      "feedback_handler": {
+        "id": "FH001",
+        "type": "feedback_processor",
+        "name": "Feedback & Complaint Management",
+        "description": "Sistem pengelolaan feedback dan keluhan jamaah",
+        "config": {
+          "feedback_types": {
+            "complaint": {
+              "categories": ["kebersihan", "fasilitas", "pelayanan", "keamanan", "sound_system", "parkir"],
+              "priority": "high",
+              "auto_escalation": true
+            },
+            "suggestion": {
+              "categories": ["program", "fasilitas", "layanan", "website", "aplikasi"],
+              "priority": "medium",
+              "review_required": true
+            },
+            "compliment": {
+              "categories": ["pelayanan", "ustadz", "program", "fasilitas"],
+              "priority": "low",
+              "public_sharing": true
+            }
+          },
+          "supabase_storage": {
+            "table": "user_feedback",
+            "fields": ["user_phone", "user_name", "feedback_type", "category", "message", "priority", "status", "timestamp", "admin_response"]
+          },
+          "auto_responses": {
+            "complaint_received": "🙏 *Terima kasih atas feedback Anda*\n\nKeluhan Anda telah kami terima dan akan segera ditindaklanjuti.\n\n📝 Nomor Tiket: {{ticket_number}}\n📂 Kategori: {{category}}\n⏰ Waktu: {{timestamp}}\n\n🔄 Status akan diupdate via WhatsApp\n📞 Kontak langsung: {{global_data.masjid_info.kontak.whatsapp}}\n\n🤲 Jazakallahu khairan atas perhatiannya!",
+            "suggestion_received": "💡 *Terima kasih atas saran Anda*\n\nSaran yang berharga ini akan kami pertimbangkan untuk perbaikan masjid.\n\n📝 Nomor Referensi: {{reference_number}}\n📂 Kategori: {{category}}\n\n🤝 Kami menghargai partisipasi Anda dalam memajukan masjid\n🤲 Barakallahu fiikum!",
+            "compliment_received": "😊 *Alhamdulillah, terima kasih!*\n\nKomplimen Anda sangat memotivasi kami untuk terus memberikan pelayanan terbaik.\n\n🌟 Feedback positif ini akan kami bagikan kepada tim\n🤲 Semoga Allah membalas kebaikan Anda!"
+          },
+          "escalation_rules": {
+            "immediate": ["emergency", "safety", "security"],
+            "within_24h": ["facilities_broken", "cleanliness_major"],
+            "within_week": ["service_complaint", "program_feedback"]
+          }
+        },
+        "connections": {
+          "feedback_logged": "response_formatter",
+          "escalation_needed": "admin_notifier"
+        }
+      },
+      "content_moderator": {
+        "id": "CM001",
+        "type": "content_moderation",
+        "name": "Islamic Content Moderation",
+        "description": "Moderasi konten sesuai nilai-nilai Islam",
+        "config": {
+          "moderation_rules": {
+            "inappropriate_content": {
+              "blocked_topics": ["gambling", "alcohol", "inappropriate_images", "hate_speech"],
+              "islamic_compliance": true,
+              "auto_block": true
+            },
+            "educational_content": {
+              "islamic_verification": true,
+              "source_validation": true,
+              "ustadz_review": "complex_fiqh_questions"
+            }
+          },
+          "responses": {
+            "content_blocked": "🚫 *Konten Tidak Sesuai*\n\nMaaf, konten yang Anda kirim tidak sesuai dengan nilai-nilai Islam dan aturan masjid.\n\n🕌 Mari kita jaga kesucian rumah Allah\n📝 Silakan kirim pesan yang lebih sesuai\n\n🤲 Barakallahu fiikum",
+            "under_review": "⏳ *Konten Sedang Direview*\n\nPesan Anda sedang ditinjau oleh tim kami.\n\n⏰ Mohon tunggu beberapa saat\n📞 Untuk urgency: {{global_data.masjid_info.kontak.whatsapp}}"
+          }
+        },
+        "connections": {
+          "approved": "intent_classifier",
+          "blocked": "response_formatter",
+          "review_needed": "admin_notifier"
+        }
+      },
+      "response_formatter": {
+        "id": "RF001",
+        "type": "enhanced_formatter",
+        "name": "Smart Response Formatter",
+        "description": "Format respons dengan personalisasi dan optimasi",
+        "config": {
+          "formatting_rules": {
+            "max_length": 4000,
+            "line_breaks": "preserve",
+            "emoji_enhancement": true,
+            "markdown_support": true,
+            "islamic_formatting": {
+              "arabic_text": "preserve_rtl",
+              "doa_formatting": "emphasized",
+              "ayat_quran": "quoted_style"
+            }
+          },
+          "personalization": {
+            "use_user_name": true,
+            "time_based_greeting": {
+              "morning": "🌅 Selamat pagi",
+              "afternoon": "☀️ Selamat siang",
+              "evening": "🌙 Selamat malam",
+              "late_night": "🌃 Selamat malam"
+            },
+            "islamic_calendar": {
+              "hijri_date": true,
+              "islamic_events": true,
+              "prayer_time_context": true
+            }
+          },
+          "signature_templates": {
+            "standard": "\n\n━━━━━━━━━━━━━━━━━━━━━\n🕌 {{global_data.masjid_info.nama}}\n📱 AI Assistant v3.0\n🤖 Melayani dengan ❤️ 24/7",
+            "with_contact": "\n\n━━━━━━━━━━━━━━━━━━━━━\n🕌 {{global_data.masjid_info.nama}}\n📱 AI Assistant v3.0\n📞 {{global_data.masjid_info.kontak.whatsapp}}\n🌐 {{global_data.masjid_info.kontak.website}}",
+            "minimal": "\n\n🕌 {{global_data.masjid_info.nama}} | 📱 AI Assistant"
+          },
+          "response_optimization": {
+            "compress_long_responses": true,
+            "smart_line_breaks": true,
+            "priority_content_first": true
+          }
+        },
+        "connections": {
+          "success": "whatsapp_sender"
+        }
+      },
+      "whatsapp_sender": {
+        "id": "WS001",
+        "type": "enhanced_whatsapp_sender",
+        "name": "Multi-Provider WhatsApp Sender",
+        "description": "Pengirim pesan ke berbagai provider WhatsApp API",
+        "config": {
+          "provider_config": {
+            "primary_provider": "{{api_credentials.whatsapp_alternative.api_url}}",
+            "api_key": "{{api_credentials.whatsapp_alternative.api_key}}",
+            "supported_providers": {
+              "fonnte": {
+                "endpoint": "https://api.fonnte.com/send",
+                "auth_header": "Authorization",
+                "payload_format": "fonnte"
+              },
+              "woowa": {
+                "endpoint": "{{WOOWA_API_URL}}/send-message",
+                "auth_header": "X-API-Key",
+                "payload_format": "woowa"
+              },
+              "whatsender": {
+                "endpoint": "{{WHATSENDER_API_URL}}/api/send",
+                "auth_header": "Authorization",
+                "payload_format": "whatsender"
+              },
+              "custom": {
+                "endpoint": "{{CUSTOM_API_URL}}",
+                "auth_header": "{{CUSTOM_AUTH_HEADER}}",
+                "payload_format": "custom"
+              }
+            }
+          },
+          "message_types": {
+            "text": {
+              "max_length": 4000,
+              "formatting": "whatsapp_markdown"
+            },
+            "image": {
+              "supported_formats": ["jpg", "png", "webp"],
+              "max_size_mb": 5,
+              "caption_support": true
+            },
+            "document": {
+              "supported_formats": ["pdf", "doc", "docx"],
+              "max_size_mb": 10
+            }
+          },
+          "delivery_optimization": {
+            "retry_policy": {
+              "max_attempts": 3,
+              "backoff_strategy": "exponential",
+              "base_delay_ms": 1000
+            },
+            "queue_management": {
+              "batch_size": 10,
+              "rate_limit_per_minute": 60
+            },
+            "delivery_tracking": {
+              "track_status": true,
+              "supabase_logging": {
+                "table": "message_delivery",
+                "fields": ["user_phone", "message_id", "status", "provider", "timestamp", "retry_count"]
+              }
+            }
+          }
+        },
+        "connections": {
+          "success": "activity_logger",
+          "failed": "delivery_retry_handler",
+          "rate_limited": "queue_manager"
+        }
+      },
+      "activity_logger": {
+        "id": "AL001",
+        "type": "enhanced_logger",
+        "name": "Advanced Analytics & Logging",
+        "description": "Sistem logging dan analytics yang komprehensif",
+        "config": {
+          "supabase_tables": {
+            "usage_analytics": {
+              "fields": ["user_phone", "interaction_type", "intent", "timestamp", "response_time", "success", "provider_used", "tokens_used"],
+              "retention_days": 365
+            },
+            "ai_conversations": {
+              "fields": ["user_phone", "user_message", "ai_response", "model_used", "tokens_used", "response_time", "timestamp", "satisfaction_rating"],
+              "retention_days": 180
+            },
+            "popular_services": {
+              "fields": ["service_type", "usage_count", "date", "hour", "user_demographics"],
+              "aggregation": "daily"
+            },
+            "error_logs": {
+              "fields": ["error_type", "error_message", "user_phone", "timestamp", "stack_trace", "resolved"],
+              "alert_threshold": 10
+            }
+          },
+          "analytics_features": {
+            "user_behavior_tracking": true,
+            "service_popularity": true,
+            "peak_hours_analysis": true,
+            "conversion_funnel": true,
+            "user_retention": true,
+            "ai_performance_metrics": true
+          },
+          "privacy_protection": {
+            "anonymize_phone_numbers": true,
+            "encrypt_message_content": true,
+            "gdpr_compliance": true,
+            "data_retention_policy": "auto_delete_after_period"
+          },
+          "reporting": {
+            "daily_summary": {
+              "enabled": true,
+              "recipients": ["admin@masjidalukhlas.id"],
+              "metrics": ["total_interactions", "popular_services", "ai_usage", "error_rate"]
+            },
+            "weekly_insights": {
+              "enabled": true,
+              "user_growth": true,
+              "service_trends": true,
+              "ai_conversation_quality": true
+            },
+            "monthly_report": {
+              "comprehensive_analytics": true,
+              "export_format": "pdf",
+              "include_charts": true
+            }
+          }
+        },
+        "connections": {}
+      },
+      "error_handler": {
+        "id": "ERR001",
+        "type": "enhanced_error_processor",
+        "name": "Smart Error Management System",
+        "description": "Sistem pengelolaan error yang cerdas dan komprehensif",
+        "config": {
+          "error_categories": {
+            "api_errors": {
+              "openrouter_timeout": "AI service temporarily unavailable",
+              "supabase_connection": "Database connection issue",
+              "whatsapp_api_failed": "Message delivery failed"
+            },
+            "user_errors": {
+              "invalid_format": "Format pesan tidak sesuai",
+              "rate_limit_exceeded": "Terlalu banyak pesan dalam waktu singkat",
+              "unsupported_media": "Format media tidak didukung"
+            },
+            "system_errors": {
+              "memory_limit": "System overload",
+              "timeout": "Request timeout",
+              "unknown_error": "Unexpected system error"
+            }
+          },
+          "recovery_strategies": {
+            "ai_fallback": {
+              "use_cached_responses": true,
+              "simple_rule_based": true,
+              "escalate_to_human": "complex_queries"
+            },
+            "database_fallback": {
+              "use_static_data": true,
+              "cache_last_known_good": true
+            },
+            "api_fallback": {
+              "alternative_providers": true,
+              "graceful_degradation": true
+            }
+          },
+          "user_friendly_messages": {
+            "temporary_issue": "🔧 Sedang ada gangguan teknis sementara. Tim kami sedang memperbaikinya.\n\n⏰ Silakan coba lagi dalam 5-10 menit\n📞 Untuk urgent: {{global_data.masjid_info.kontak.whatsapp}}\n\n🤲 Mohon maaf atas ketidaknyamanannya",
+            "service_unavailable": "⚠️ Layanan {{service_name}} sedang tidak tersedia.\n\n🔄 Coba layanan lain atau hubungi admin\n📱 Ketik 'menu' untuk melihat layanan tersedia\n\n🙏 Jazakallahu khairan atas kesabarannya",
+            "general_error": "😔 Terjadi kesalahan yang tidak terduga.\n\n🛠️ Tim teknis telah diberitahu\n📞 Hubungi: {{global_data.masjid_info.kontak.whatsapp}}\n📧 Email: {{global_data.masjid_info.kontak.email}}\n\n🤲 Barakallahu fiikum"
+          },
+          "escalation_rules": {
+            "immediate_notification": ["system_crash", "data_corruption", "security_breach"],
+            "hourly_notification": ["high_error_rate", "service_degradation"],
+            "daily_summary": ["minor_errors", "user_feedback_errors"]
+          }
+        },
+        "connections": {
+          "recoverable": "response_formatter",
+          "escalation_needed": "admin_notifier",
+          "log_only": "activity_logger"
+        }
+      },
+      "rate_limit_handler": {
+        "id": "RLH001",
+        "type": "smart_rate_limiter",
+        "name": "Intelligent Rate Limiting System",
+        "description": "Sistem rate limiting yang cerdas dan adaptif",
+        "config": {
+          "rate_limits": {
+            "per_user": {
+              "messages_per_minute": 15,
+              "ai_requests_per_hour": 30,
+              "media_uploads_per_day": 10,
+              "burst_allowance": 5
+            },
+            "global_limits": {
+              "requests_per_second": 100,
+              "ai_tokens_per_minute": 50000,
+              "database_queries_per_minute": 1000
+            },
+            "special_users": {
+              "admin_whitelist": ["{{global_data.masjid_info.kontak.whatsapp}}"],
+              "ustadz_whitelist": "{{global_data.masjid_info.ustadz[*].kontak}}",
+              "premium_limits": "double_standard"
+            }
+          },
+          "adaptive_limiting": {
+            "peak_hours": {
+              "times": ["07:00-09:00", "12:00-14:00", "17:00-20:00"],
+              "adjusted_limits": "reduce_by_20_percent"
+            },
+            "high_load": {
+              "trigger_threshold": "80_percent_capacity",
+              "emergency_limits": "reduce_by_50_percent"
+            }
+          },
+          "user_education": {
+            "warning_message": "⚠️ *Peringatan Rate Limit*\n\nAnda mendekati batas penggunaan:\n• {{current_count}}/{{limit}} pesan per menit\n\n⏰ Mohon tunggu {{wait_time}} detik\n💡 Tip: Gabungkan pertanyaan dalam satu pesan\n\n🤲 Jazakallahu khairan atas pengertiannya!",
+            "blocked_message": "🛑 *Batas Penggunaan Tercapai*\n\nAnda telah mencapai batas maksimal:\n• {{limit}} pesan per {{time_window}}\n\n⏳ Coba lagi dalam {{reset_time}}\n🆘 Untuk emergency: {{global_data.masjid_info.kontak.whatsapp}}\n\n🙏 Mohon maaf atas ketidaknyamanannya"
+          },
+          "bypass_conditions": {
+            "emergency_keywords": ["darurat", "emergency", "urgent", "help"],
+            "islamic_emergencies": ["meninggal", "jenazah", "sakit", "kecelakaan"],
+            "admin_override": true
+          }
+        },
+        "connections": {
+          "allowed": "intent_classifier",
+          "rate_limited": "response_formatter",
+          "emergency_bypass": "priority_handler"
+        }
+      }
+    },
+    "workflow_flow": {
+      "entry_point": "webhook_receiver",
+      "main_flow": "webhook_receiver → user_manager → input_validator → intent_classifier → [service_handlers] → response_formatter → whatsapp_sender → activity_logger",
+      "error_handlers": {
+        "global": "error_handler",
+        "rate_limit": "rate_limit_handler",
+        "content_moderation": "content_moderator"
+      },
+      "parallel_processing": {
+        "enabled": true,
+        "max_concurrent": 20,
+        "queue_management": "priority_based"
+      }
+    },
+    "environment_variables": {
+      "development": {
+        "OPENROUTER_API_KEY": "{{api_credentials.openrouter.api_key}}",
+        "SUPABASE_URL": "{{api_credentials.supabase.url}}",
+        "SUPABASE_ANON_KEY": "{{api_credentials.supabase.anon_key}}",
+        "WHATSAPP_API_URL": "https://api.fonnte.com",
+        "WHATSAPP_API_KEY": "dev_fonnte_key",
+        "WEBHOOK_VERIFY_TOKEN": "dev_verify_token_12345",
+        "ENVIRONMENT": "development",
+        "LOG_LEVEL": "debug"
+      },
+      "production": {
+        "OPENROUTER_API_KEY": "{{api_credentials.openrouter.api_key}}",
+        "SUPABASE_URL": "{{api_credentials.supabase.url}}",
+        "SUPABASE_ANON_KEY": "{{api_credentials.supabase.anon_key}}",
+        "WHATSAPP_API_URL": "{{PROD_WHATSAPP_API_URL}}",
+        "WHATSAPP_API_KEY": "{{PROD_WHATSAPP_API_KEY}}",
+        "WEBHOOK_VERIFY_TOKEN": "{{PROD_WEBHOOK_VERIFY_TOKEN}}",
+        "ENVIRONMENT": "production",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "security_config": {
+      "authentication": {
+        "webhook_signature_validation": true,
+        "api_key_rotation": "monthly",
+        "rate_limiting": "adaptive"
+      },
+      "data_protection": {
+        "encrypt_user_data": true,
+        "anonymize_logs": true,
+        "gdpr_compliance": true,
+        "data_retention": {
+          "conversations": "6_months",
+          "analytics": "12_months",
+          "error_logs": "3_months"
+        }
+      },
+      "content_security": {
+        "islamic_compliance_check": true,
+        "inappropriate_content_blocking": true,
+        "spam_protection": true,
+        "malware_scanning": "media_files"
+      }
+    },
+    "monitoring_config": {
+      "health_checks": {
+        "interval_seconds": 300,
+        "endpoints": [
+          "openrouter_api_health",
+          "supabase_connection",
+          "whatsapp_api_health",
+          "system_resources"
+        ]
+      },
+      "performance_monitoring": {
+        "response_time_tracking": true,
+        "ai_token_usage": true,
+        "database_query_performance": true,
+        "user_satisfaction_tracking": true
+      },
+      "alerts": {
+        "error_rate_threshold": 0.05,
+        "response_time_threshold_ms": 5000,
+        "ai_cost_threshold_daily": 100,
+        "storage_usage_threshold": 0.8,
+        "notification_channels": ["email", "whatsapp", "webhook"]
+      },
+      "analytics_dashboard": {
+        "real_time_metrics": true,
+        "user_journey_tracking": true,
+        "service_popularity": true,
+        "ai_conversation_insights": true,
+        "revenue_tracking": "donations"
+      }
+    }
+  }
+}
