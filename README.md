@@ -1,6 +1,6 @@
-# 🕌 Workflow Agent AI Masjid
+# 🕌 Masjid AI Workflow - Cloud Edition
 
-Sistem workflow agent AI untuk layanan masjid dengan integrasi WhatsApp Business API. Sistem ini menggunakan konfigurasi JSON untuk menghubungkan semua node workflow dan memberikan respons otomatis untuk berbagai layanan masjid.
+Sistem workflow agent AI untuk layanan masjid dalam **satu file JSON lengkap** yang dapat digunakan di platform cloud workflow seperti Zapier, Make.com, Microsoft Power Automate, atau platform workflow automation lainnya.
 
 ## 📋 Fitur Utama
 

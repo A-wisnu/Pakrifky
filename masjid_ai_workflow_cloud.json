@@ -1,0 +1,389 @@
+{
+  "workflow": {
+    "metadata": {
+      "name": "Masjid AI Assistant Cloud Workflow",
+      "version": "2.0.0",
+      "description": "Workflow agent AI untuk layanan masjid dengan integrasi WhatsApp Cloud API",
+      "platform": "cloud",
+      "language": "id",
+      "created": "2024-01-15"
+    },
+    "triggers": {
+      "whatsapp_webhook": {
+        "type": "webhook",
+        "source": "whatsapp_cloud_api",
+        "endpoint": "/webhook/whatsapp",
+        "method": "POST",
+        "validation": {
+          "verify_token": "WEBHOOK_VERIFY_TOKEN",
+          "signature_validation": true
+        }
+      }
+    },
+    "global_data": {
+      "masjid_info": {
+        "nama": "Masjid Al-Ikhlas",
+        "alamat": "Jl. Raya Masjid No. 123, Jakarta Selatan 12345",
+        "telepon": "+62-21-12345678",
+        "whatsapp": "+62-812-3456-7890",
+        "email": "info@masjidalukhlas.id",
+        "takmir": "Bapak Ahmad Suryadi",
+        "jam_buka": "04:30 - 22:00 WIB",
+        "fasilitas": ["Tempat Wudhu", "Parkir", "AC", "Sound System", "Perpustakaan", "Ruang Kajian"]
+      },
+      "rekening_donasi": {
+        "bca": "1234567890",
+        "mandiri": "0987654321", 
+        "bri": "5555666677778888",
+        "qris": "https://example.com/qris-masjid.png"
+      }
+    },
+    "nodes": {
+      "webhook_receiver": {
+        "id": "WR001",
+        "type": "webhook_processor",
+        "name": "WhatsApp Message Receiver",
+        "config": {
+          "extract_fields": ["phone", "message", "timestamp", "type", "name"],
+          "message_types": ["text", "button", "interactive"]
+        },
+        "connections": {
+          "success": "input_validator",
+          "error": "error_handler"
+        }
+      },
+      "input_validator": {
+        "id": "IV001",
+        "type": "validator", 
+        "name": "Input Validator",
+        "config": {
+          "validations": {
+            "phone": "^\\+62[0-9]{9,13}$",
+            "message": {"min_length": 1, "max_length": 1000}
+          },
+          "rate_limit": {"per_minute": 10, "block_duration": 5}
+        },
+        "connections": {
+          "valid": "intent_classifier",
+          "invalid": "error_handler",
+          "rate_limited": "rate_limit_handler"
+        }
+      },
+      "intent_classifier": {
+        "id": "IC001",
+        "type": "ai_classifier",
+        "name": "Intent Classifier",
+        "config": {
+          "confidence_threshold": 0.65,
+          "fallback_intent": "informasi_umum",
+          "intents": {
+            "jadwal_shalat": {
+              "keywords": ["jadwal shalat", "waktu shalat", "adzan", "subuh", "dzuhur", "ashar", "magrib", "isya"],
+              "patterns": ["kapan.*shalat", "jam.*shalat", "waktu.*adzan"]
+            },
+            "kajian_info": {
+              "keywords": ["kajian", "pengajian", "ceramah", "ustadz", "kuliah agama"],
+              "patterns": ["kajian.*hari", "pengajian.*minggu", "ustadz.*ceramah"]
+            },
+            "donasi_infaq": {
+              "keywords": ["donasi", "infaq", "sedekah", "zakat", "transfer", "rekening", "qris"],
+              "patterns": ["mau.*donasi", "cara.*infaq", "transfer.*zakat"]
+            },
+            "acara_kegiatan": {
+              "keywords": ["acara", "event", "kegiatan", "agenda", "program", "bakti sosial"],
+              "patterns": ["acara.*apa", "kegiatan.*minggu", "agenda.*bulan"]
+            },
+            "informasi_umum": {
+              "keywords": ["info", "alamat", "kontak", "lokasi", "jam buka", "fasilitas"],
+              "patterns": ["dimana.*masjid", "alamat.*masjid", "kontak.*takmir"]
+            },
+            "daftar_nikah": {
+              "keywords": ["nikah", "menikah", "akad", "pernikahan", "syarat nikah", "daftar nikah"],
+              "patterns": ["mau.*nikah", "daftar.*akad", "syarat.*menikah"]
+            },
+            "konsultasi": {
+              "keywords": ["konsultasi", "tanya", "bantuan", "bimbingan", "nasihat", "curhat"],
+              "patterns": ["mau.*tanya", "butuh.*bantuan", "konsultasi.*agama"]
+            },
+            "salam_greeting": {
+              "keywords": ["assalamualaikum", "salam", "halo", "hai", "selamat"],
+              "patterns": ["assalamualaikum.*", "salam.*", "selamat.*"]
+            }
+          }
+        },
+        "connections": {
+          "jadwal_shalat": "prayer_handler",
+          "kajian_info": "kajian_handler",
+          "donasi_infaq": "donation_handler", 
+          "acara_kegiatan": "event_handler",
+          "informasi_umum": "info_handler",
+          "daftar_nikah": "marriage_handler",
+          "konsultasi": "consultation_handler",
+          "salam_greeting": "greeting_handler",
+          "unknown": "fallback_handler"
+        }
+      },
+      "prayer_handler": {
+        "id": "PH001",
+        "type": "data_processor",
+        "name": "Prayer Time Handler",
+        "config": {
+          "api_source": "https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=2",
+          "fallback_times": {
+            "fajr": "04:30", "dhuhr": "12:15", "asr": "15:30", "maghrib": "18:45", "isha": "20:00"
+          },
+          "response_template": "🕌 *Jadwal Shalat Hari Ini*\n\n🌅 Subuh: {{fajr}}\n☀️ Dzuhur: {{dhuhr}}\n🌤️ Ashar: {{asr}}\n🌅 Magrib: {{maghrib}}\n🌙 Isya: {{isha}}\n\n📍 {{masjid_info.nama}}\nSemoga bermanfaat! 🤲"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "kajian_handler": {
+        "id": "KH001",
+        "type": "database_query",
+        "name": "Kajian Info Handler", 
+        "config": {
+          "query": "SELECT * FROM kajian_schedule WHERE tanggal >= CURRENT_DATE AND status='active' ORDER BY tanggal LIMIT 5",
+          "fallback_data": [
+            {
+              "tanggal": "2024-01-15", "waktu": "19:30", "ustadz": "Ustadz Ahmad Dahlan",
+              "tema": "Akhlak dalam Islam", "lokasi": "Aula Masjid"
+            },
+            {
+              "tanggal": "2024-01-22", "waktu": "20:00", "ustadz": "Ustadz Muhammad Ridwan", 
+              "tema": "Fiqh Muamalah", "lokasi": "Ruang Kajian"
+            }
+          ],
+          "response_template": "📚 *Jadwal Kajian & Pengajian*\n\n{{#each kajian}}\n📅 {{tanggal}}\n🕐 {{waktu}} WIB\n👨‍🏫 {{ustadz}}\n📖 {{tema}}\n📍 {{lokasi}}\n\n{{/each}}📞 Info: {{masjid_info.whatsapp}}\n🤲 Barakallahu fiikum!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "donation_handler": {
+        "id": "DH001",
+        "type": "payment_processor", 
+        "name": "Donation Handler",
+        "config": {
+          "payment_methods": ["bank_transfer", "qris", "e_wallet"],
+          "response_template": "💰 *Donasi & Infaq {{masjid_info.nama}}*\n\n🏦 *Transfer Bank:*\n🏧 BCA: {{rekening_donasi.bca}}\n🏧 Mandiri: {{rekening_donasi.mandiri}}\n🏧 BRI: {{rekening_donasi.bri}}\na.n Masjid Al-Ikhlas\n\n📱 *QRIS:*\n{{rekening_donasi.qris}}\n\n🙏 Jazakallahu khairan!\n📞 Konfirmasi: {{masjid_info.whatsapp}}"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "event_handler": {
+        "id": "EH001",
+        "type": "calendar_processor",
+        "name": "Event Handler",
+        "config": {
+          "calendar_source": "masjid_events",
+          "fallback_events": [
+            {
+              "nama": "Kajian Rutin Senin", "tanggal": "2024-01-15", "waktu": "19:30-21:00",
+              "tempat": "Aula Masjid", "peserta": "Umum", "biaya": "Gratis"
+            },
+            {
+              "nama": "Bakti Sosial", "tanggal": "2024-01-20", "waktu": "08:00-12:00", 
+              "tempat": "Lapangan Masjid", "peserta": "Jamaah", "biaya": "Gratis"
+            }
+          ],
+          "response_template": "📅 *Agenda Kegiatan {{masjid_info.nama}}*\n\n{{#each events}}\n📋 {{nama}}\n📅 {{tanggal}} | 🕐 {{waktu}}\n📍 {{tempat}}\n👥 {{peserta}} | 💰 {{biaya}}\n\n{{/each}}📞 Info: {{masjid_info.whatsapp}}\n📝 Daftarkan diri Anda!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "info_handler": {
+        "id": "IH001",
+        "type": "static_responder",
+        "name": "General Info Handler",
+        "config": {
+          "response_template": "🕌 *{{masjid_info.nama}}*\n\n📍 **Alamat:**\n{{masjid_info.alamat}}\n\n📞 **Kontak:**\n☎️ {{masjid_info.telepon}}\n📱 {{masjid_info.whatsapp}}\n📧 {{masjid_info.email}}\n\n🕐 **Jam Buka:** {{masjid_info.jam_buka}}\n\n🏢 **Fasilitas:**\n{{#each masjid_info.fasilitas}}\n✅ {{this}}\n{{/each}}\n\n👨‍💼 **Takmir:** {{masjid_info.takmir}}\n\n🤲 Selamat datang di masjid kami!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "marriage_handler": {
+        "id": "MH001",
+        "type": "form_processor",
+        "name": "Marriage Registration Handler",
+        "config": {
+          "required_documents": [
+            "KTP Calon Pengantin", "Surat Keterangan Belum Menikah", 
+            "Surat Persetujuan Orang Tua", "Pas Foto 3x4 (4 lembar)", "Surat Keterangan Sehat"
+          ],
+          "process_steps": [
+            "Konsultasi pra-nikah", "Melengkapi berkas", "Verifikasi dokumen",
+            "Penentuan jadwal akad", "Pelaksanaan akad nikah"
+          ],
+          "response_template": "💒 *Pendaftaran Nikah - {{masjid_info.nama}}*\n\n📋 **Dokumen Diperlukan:**\n{{#each required_documents}}\n📄 {{this}}\n{{/each}}\n\n📝 **Tahapan Proses:**\n{{#each process_steps}}\n{{@index}}. {{this}}\n{{/each}}\n\n👨‍🏫 **Narahubung:**\nUstadz Ahmad: {{masjid_info.whatsapp}}\n\n🤲 Semoga Allah mudahkan urusan Anda!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "consultation_handler": {
+        "id": "CH001",
+        "type": "consultation_processor",
+        "name": "Religious Consultation Handler",
+        "config": {
+          "consultation_types": [
+            {"category": "Fiqh & Ibadah", "ustadz": "Ustadz Ahmad", "schedule": "Senin-Kamis 19:00-21:00"},
+            {"category": "Keluarga & Pernikahan", "ustadz": "Ustadz Ridwan", "schedule": "Selasa-Jumat 08:00-12:00"},
+            {"category": "Muamalah & Ekonomi", "ustadz": "Ustadz Abdullah", "schedule": "Rabu-Sabtu 14:00-17:00"}
+          ],
+          "response_template": "🤲 *Konsultasi Keagamaan*\n📍 {{masjid_info.nama}}\n\n💡 **Bidang Konsultasi:**\n\n{{#each consultation_types}}\n📚 {{category}}\n👨‍🏫 {{ustadz}}\n⏰ {{schedule}}\n\n{{/each}}📱 **Cara Konsultasi:**\n1. Hubungi: {{masjid_info.whatsapp}}\n2. Jelaskan masalah yang ingin dikonsultasikan\n3. Atur jadwal konsultasi\n\n🙏 Semoga Allah berikan solusi terbaik"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "greeting_handler": {
+        "id": "GH001",
+        "type": "greeting_processor",
+        "name": "Greeting Handler",
+        "config": {
+          "greetings": {
+            "assalamualaikum": "وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ\n\nWa'alaikumussalam warahmatullahi wabarakatuh",
+            "general": "Selamat datang di layanan {{masjid_info.nama}}! 🕌"
+          },
+          "menu": "📝 **Menu Layanan:**\n\n1️⃣ Jadwal Shalat\n2️⃣ Info Kajian\n3️⃣ Donasi & Infaq\n4️⃣ Acara Masjid\n5️⃣ Info Umum\n6️⃣ Daftar Nikah\n7️⃣ Konsultasi\n\n💬 Ketik nama layanan yang diinginkan",
+          "response_template": "{{greeting}}\n\n{{menu}}\n\n🤖 Saya siap membantu 24/7!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "fallback_handler": {
+        "id": "FH001",
+        "type": "ai_responder",
+        "name": "Fallback Handler",
+        "config": {
+          "fallback_message": "Maaf, saya belum memahami maksud Anda dengan jelas. 🤔",
+          "suggestion_menu": "📝 **Silakan pilih layanan:**\n\n1️⃣ Jadwal Shalat\n2️⃣ Info Kajian\n3️⃣ Donasi\n4️⃣ Acara Masjid\n5️⃣ Info Umum\n6️⃣ Daftar Nikah\n7️⃣ Konsultasi\n\n💬 Ketik nama atau angka layanan",
+          "response_template": "{{fallback_message}}\n\n{{suggestion_menu}}\n\n📞 **Bantuan:** {{masjid_info.whatsapp}}\n🤲 Jazakallahu khairan!"
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "response_formatter": {
+        "id": "RF001",
+        "type": "formatter",
+        "name": "Response Formatter",
+        "config": {
+          "max_length": 4000,
+          "signature": "\n\n━━━━━━━━━━━━━━━━━━━━━\n🕌 {{masjid_info.nama}}\n📱 Assistant Bot v2.0",
+          "time_greeting": {
+            "morning": "🌅 Selamat pagi",
+            "afternoon": "☀️ Selamat siang", 
+            "evening": "🌙 Selamat malam"
+          }
+        },
+        "connections": {
+          "success": "whatsapp_sender"
+        }
+      },
+      "whatsapp_sender": {
+        "id": "WS001",
+        "type": "api_sender",
+        "name": "WhatsApp Sender",
+        "config": {
+          "api_url": "https://graph.facebook.com/v18.0/{{PHONE_NUMBER_ID}}/messages",
+          "headers": {
+            "Authorization": "Bearer {{ACCESS_TOKEN}}",
+            "Content-Type": "application/json"
+          },
+          "payload_template": {
+            "messaging_product": "whatsapp",
+            "to": "{{user_phone}}",
+            "type": "text",
+            "text": {"body": "{{response_text}}"}
+          },
+          "retry_config": {"max_attempts": 3, "delay_ms": 1000}
+        },
+        "connections": {
+          "success": "activity_logger",
+          "error": "error_handler"
+        }
+      },
+      "activity_logger": {
+        "id": "AL001",
+        "type": "logger",
+        "name": "Activity Logger",
+        "config": {
+          "log_fields": ["timestamp", "user_phone", "intent", "response_status", "processing_time"],
+          "destinations": ["cloud_storage", "analytics_db"],
+          "privacy": {"anonymize_phone": true, "encrypt_messages": true},
+          "retention_days": 90
+        },
+        "connections": {}
+      },
+      "error_handler": {
+        "id": "ERR001",
+        "type": "error_processor",
+        "name": "Error Handler",
+        "config": {
+          "error_responses": {
+            "validation_error": "Format pesan tidak sesuai. Silakan coba lagi.",
+            "api_timeout": "Sedang mengalami gangguan. Mohon tunggu sebentar.",
+            "general_error": "Terjadi kesalahan. Hubungi admin: {{masjid_info.whatsapp}}"
+          }
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      },
+      "rate_limit_handler": {
+        "id": "RLH001",
+        "type": "rate_limiter",
+        "name": "Rate Limit Handler", 
+        "config": {
+          "message": "Anda mengirim pesan terlalu cepat. Tunggu {{block_duration}} menit.",
+          "block_duration": 5,
+          "whitelist": ["{{masjid_info.whatsapp}}"]
+        },
+        "connections": {
+          "success": "response_formatter"
+        }
+      }
+    },
+    "workflow_flow": {
+      "entry_point": "webhook_receiver",
+      "error_handlers": {
+        "global": "error_handler",
+        "rate_limit": "rate_limit_handler"
+      }
+    },
+    "environment": {
+      "development": {
+        "ACCESS_TOKEN": "dev_token",
+        "PHONE_NUMBER_ID": "dev_phone_id",
+        "WEBHOOK_VERIFY_TOKEN": "dev_verify",
+        "DATABASE_URL": "sqlite://dev.db"
+      },
+      "production": {
+        "ACCESS_TOKEN": "{{PROD_ACCESS_TOKEN}}",
+        "PHONE_NUMBER_ID": "{{PROD_PHONE_NUMBER_ID}}",
+        "WEBHOOK_VERIFY_TOKEN": "{{PROD_VERIFY_TOKEN}}",
+        "DATABASE_URL": "{{PROD_DATABASE_URL}}"
+      }
+    },
+    "security": {
+      "webhook_verification": true,
+      "rate_limiting": {"requests_per_minute": 60},
+      "input_sanitization": true,
+      "privacy_compliance": true
+    },
+    "monitoring": {
+      "health_checks": ["api_health", "database_connection"],
+      "performance_metrics": ["response_time", "success_rate", "error_rate"],
+      "alerts": {
+        "error_rate_threshold": 0.05,
+        "response_time_threshold": 5000
+      }
+    }
+  }
+}
