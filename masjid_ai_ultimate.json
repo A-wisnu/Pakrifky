@@ -1,0 +1,358 @@
+{
+  "name": "🕌 Masjid AI Ultimate - Cloud Ready",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-masjid-ultimate",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-gateway",
+      "name": "🌐 Ultimate Gateway",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🚀 ULTIMATE MASJID AI PROCESSOR\nconst moment = require('moment');\n\n// Configuration with all API keys embedded\nconst CONFIG = {\n  apis: {\n    openrouter: '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',\n    supabase_url: 'https://bvaxxlmhrzocbrqiykoqul.supabase.co',\n    supabase_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXh4bG1ocnpvY2JycWl5a29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NjMxMDMsImV4cCI6MjA2OTQzOTEwM30.GjDhx8BUR7Y4FUS2PZalEeDhKVt_zQWGTEV_5nKKgrg'\n  },\n  ai_models: {\n    primary: 'moonshotai/kimi-k2:free',\n    fallback: 'google/gemma-7b-it:free'\n  },\n  debug: true\n};\n\n// Complete Masjid Information\nconst MASJID = {\n  info: {\n    nama: 'Masjid Al-Ikhlas Jakarta Selatan',\n    alamat: 'Jl. Raya Masjid No. 123, Kebayoran Baru, Jakarta Selatan 12345',\n    whatsapp: '+62-812-3456-7890',\n    email: 'info@masjidalukhlas.id',\n    website: 'https://masjidalukhlas.id',\n    capacity: 2000,\n    imam: 'KH. Abdullah Rahman'\n  },\n  rekening: {\n    banks: {\n      bca: { no: '1234567890', name: 'Masjid Al-Ikhlas' },\n      mandiri: { no: '0987654321', name: 'Yayasan Masjid Al-Ikhlas' },\n      bri: { no: '5555666677778888', name: 'Takmir Masjid Al-Ikhlas' }\n    },\n    ewallet: {\n      dana: '081234567890',\n      gopay: '081234567890',\n      ovo: '081234567890',\n      shopeepay: '081234567890'\n    },\n    qris: 'https://masjidalukhlas.id/qris.png'\n  },\n  ustadz: [\n    {\n      nama: 'Ustadz Dr. Ahmad Dahlan, Lc., M.A',\n      spesialisasi: ['Fiqh Ibadah', 'Akhlaq & Tasawuf', 'Tafsir Al-Quran'],\n      jadwal: 'Senin-Kamis 19:00-21:00, Jumat 08:00-11:00, Sabtu 14:00-17:00',\n      kontak: '+62-813-1111-2222',\n      email: 'ahmad@masjidalukhlas.id'\n    },\n    {\n      nama: 'Ustadz Muhammad Ridwan, S.H.I., M.E.I',\n      spesialisasi: ['Ekonomi Syariah', 'Hukum Keluarga', 'Parenting Islami'],\n      jadwal: 'Selasa-Jumat 08:00-12:00, Sabtu 19:00-21:00, Minggu 09:00-11:00',\n      kontak: '+62-813-3333-4444',\n      email: 'ridwan@masjidalukhlas.id'\n    }\n  ]\n};\n\n// Prayer Times Calculator\nfunction getPrayerTimes() {\n  const now = moment();\n  const times = {\n    fajr: '04:30',\n    sunrise: '05:45',\n    dhuhr: '12:15',\n    asr: '15:30',\n    maghrib: '18:45',\n    isha: '20:00'\n  };\n  \n  // Add Jumat time if Friday\n  if (now.day() === 5) {\n    times.jumat = '11:45';\n  }\n  \n  // Calculate next prayer\n  const currentTime = now.hour() * 60 + now.minute();\n  const prayerMinutes = {\n    fajr: 4 * 60 + 30,\n    dhuhr: 12 * 60 + 15,\n    asr: 15 * 60 + 30,\n    maghrib: 18 * 60 + 45,\n    isha: 20 * 60 + 0\n  };\n  \n  let nextPrayer = 'Subuh';\n  let nextTime = '04:30';\n  let countdown = '';\n  \n  for (const [prayer, minutes] of Object.entries(prayerMinutes)) {\n    if (currentTime < minutes) {\n      nextPrayer = prayer === 'fajr' ? 'Subuh' : \n                   prayer === 'dhuhr' ? 'Dzuhur' :\n                   prayer === 'asr' ? 'Ashar' :\n                   prayer === 'maghrib' ? 'Magrib' : 'Isya';\n      nextTime = times[prayer];\n      const remaining = minutes - currentTime;\n      const hours = Math.floor(remaining / 60);\n      const mins = remaining % 60;\n      countdown = `${hours}h ${mins}m`;\n      break;\n    }\n  }\n  \n  return { times, nextPrayer, nextTime, countdown };\n}\n\n// Ultimate Intent Classification\nfunction classifyIntent(message) {\n  const msg = message.toLowerCase();\n  const hour = moment().hour();\n  const day = moment().day();\n  \n  const intents = {\n    // Core Spiritual Services\n    jadwal_shalat: {\n      keywords: ['jadwal shalat', 'waktu shalat', 'adzan', 'subuh', 'dzuhur', 'ashar', 'magrib', 'isya', 'prayer time', 'jam shalat'],\n      score: 10\n    },\n    kiblat_direction: {\n      keywords: ['kiblat', 'qibla', 'arah shalat', 'direction', 'compass'],\n      score: 8\n    },\n    doa_dzikir: {\n      keywords: ['doa', 'dzikir', 'wirid', 'tasbih', 'istighfar', 'doa pagi', 'doa sore'],\n      score: 9\n    },\n    ayat_quran: {\n      keywords: ['ayat', 'quran', 'alquran', 'surah', 'verse', 'bacaan'],\n      score: 9\n    },\n    hadits_sunnah: {\n      keywords: ['hadits', 'hadith', 'sunnah', 'nabi', 'rasul'],\n      score: 8\n    },\n    \n    // Educational Services\n    kajian_pengajian: {\n      keywords: ['kajian', 'pengajian', 'ceramah', 'ustadz', 'belajar islam'],\n      score: day === 5 ? 10 : 7\n    },\n    tpq_tahfidz: {\n      keywords: ['tpq', 'tahfidz', 'mengaji', 'belajar quran', 'hafalan'],\n      score: 8\n    },\n    konsultasi_syariah: {\n      keywords: ['konsultasi', 'tanya ustadz', 'fatwa', 'hukum islam', 'syariah'],\n      score: 9\n    },\n    \n    // Community Services\n    donasi_zakat: {\n      keywords: ['donasi', 'infaq', 'sedekah', 'zakat', 'transfer', 'rekening', 'qris'],\n      score: 8\n    },\n    program_sosial: {\n      keywords: ['sosial', 'bantuan', 'dhuafa', 'yatim', 'fakir miskin'],\n      score: 7\n    },\n    layanan_jenazah: {\n      keywords: ['jenazah', 'meninggal', 'kafan', 'pemakaman', 'tahlil'],\n      score: 10\n    },\n    layanan_nikah: {\n      keywords: ['nikah', 'menikah', 'akad', 'pernikahan', 'wedding'],\n      score: 8\n    },\n    \n    // Information Services\n    info_masjid: {\n      keywords: ['info', 'alamat', 'lokasi', 'kontak', 'fasilitas'],\n      score: 6\n    },\n    live_streaming: {\n      keywords: ['live', 'streaming', 'online', 'youtube', 'broadcast'],\n      score: 6\n    },\n    \n    // AI Interactive\n    ai_chat_islamic: {\n      keywords: ['tanya', 'bagaimana', 'kenapa', 'apa itu', 'jelaskan'],\n      score: 6\n    },\n    \n    // Social\n    salam_greeting: {\n      keywords: ['assalamualaikum', 'salam', 'halo', 'hai'],\n      score: 6\n    }\n  };\n  \n  let bestMatch = { intent: 'ai_chat_islamic', score: 0 };\n  \n  for (const [intent, config] of Object.entries(intents)) {\n    const matches = config.keywords.filter(keyword => msg.includes(keyword)).length;\n    const totalScore = matches * config.score;\n    \n    if (totalScore > bestMatch.score) {\n      bestMatch = { intent, score: totalScore, confidence: Math.min(totalScore / 10, 1) };\n    }\n  }\n  \n  return bestMatch;\n}\n\n// Multi-provider Message Parser\nfunction parseMessage(body) {\n  let phone, message, messageType, timestamp, provider;\n  \n  try {\n    // Meta WhatsApp Business API\n    if (body.entry && body.entry[0]?.changes?.[0]?.value?.messages) {\n      provider = 'meta';\n      const msg = body.entry[0].changes[0].value.messages[0];\n      phone = msg.from;\n      messageType = msg.type;\n      message = msg.text?.body || `[${messageType}]`;\n      timestamp = msg.timestamp;\n    }\n    // Fonnte API\n    else if (body.device && body.message) {\n      provider = 'fonnte';\n      phone = body.device;\n      message = body.message;\n      messageType = body.message_type || 'text';\n      timestamp = body.date;\n    }\n    // Woowa API\n    else if (body.from && body.body) {\n      provider = 'woowa';\n      phone = body.from;\n      message = body.body;\n      messageType = body.type || 'text';\n      timestamp = body.timestamp;\n    }\n    // Generic format\n    else if (body.phone && body.message) {\n      provider = 'generic';\n      phone = body.phone;\n      message = body.message;\n      messageType = body.type || 'text';\n      timestamp = body.timestamp || Date.now();\n    }\n    else {\n      throw new Error('Unsupported message format');\n    }\n    \n    return { phone, message, messageType, timestamp, provider, success: true };\n  } catch (error) {\n    return { error: error.message, success: false };\n  }\n}\n\n// Phone number cleaner\nfunction cleanPhone(phone) {\n  if (!phone) return null;\n  phone = phone.replace(/[^0-9+]/g, '');\n  if (phone.startsWith('0')) phone = '+62' + phone.substring(1);\n  else if (phone.startsWith('62')) phone = '+' + phone;\n  else if (!phone.startsWith('+')) phone = '+62' + phone;\n  return phone;\n}\n\n// Debug logger\nfunction debugLog(message, data = null) {\n  if (CONFIG.debug) {\n    console.log(`[${moment().format('HH:mm:ss')}] ${message}`, data ? JSON.stringify(data, null, 2) : '');\n  }\n}\n\n// Main processing\nconst startTime = Date.now();\nconst body = $input.all()[0].body;\n\ndebugLog('🚀 Processing started', { body });\n\ntry {\n  // Parse message\n  const parsed = parseMessage(body);\n  debugLog('📄 Message parsed', parsed);\n  \n  if (!parsed.success) {\n    throw new Error(`Parse failed: ${parsed.error}`);\n  }\n  \n  let { phone, message, messageType, timestamp, provider } = parsed;\n  \n  // Clean phone\n  phone = cleanPhone(phone);\n  debugLog('📱 Phone cleaned', { phone });\n  \n  if (!phone || !message) {\n    throw new Error('Invalid phone or empty message');\n  }\n  \n  // Classify intent\n  const classification = classifyIntent(message);\n  debugLog('🧠 Intent classified', classification);\n  \n  // Get prayer times\n  const prayerData = getPrayerTimes();\n  debugLog('🕌 Prayer times calculated', prayerData);\n  \n  // Prepare output\n  const output = {\n    // Core data\n    phone,\n    message: message.trim(),\n    messageType,\n    timestamp: timestamp || new Date().toISOString(),\n    provider,\n    \n    // Classification\n    intent: classification.intent,\n    confidence: classification.confidence,\n    score: classification.score,\n    \n    // Context\n    prayer_data: prayerData,\n    current_time: moment().format('HH:mm:ss'),\n    current_date: moment().format('DD/MM/YYYY'),\n    day_name: moment().format('dddd'),\n    is_friday: moment().day() === 5,\n    \n    // Processing\n    processing_time: Date.now() - startTime,\n    hasError: false,\n    version: 'ultimate-4.0',\n    \n    // Configuration\n    config: CONFIG,\n    masjid: MASJID\n  };\n  \n  debugLog('✅ Output prepared', { intent: output.intent, confidence: output.confidence });\n  \n  return [{ json: output }];\n  \n} catch (error) {\n  debugLog('❌ Error occurred', { error: error.message });\n  \n  return [{\n    json: {\n      error: error.message,\n      hasError: true,\n      phone: phone || 'unknown',\n      message: message || 'unknown',\n      timestamp: new Date().toISOString(),\n      processing_time: Date.now() - startTime,\n      debug_info: CONFIG.debug ? { rawBody: body } : null\n    }\n  }];\n}"
+      },
+      "id": "ultimate-processor",
+      "name": "🧠 Ultimate Processor",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasError }}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "error-check",
+      "name": "🔍 Error Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.intent }}",
+              "operation": "equal",
+              "value2": "ai_chat_islamic"
+            }
+          ]
+        }
+      },
+      "id": "ai-route",
+      "name": "🤖 AI Route?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [950, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🤖 ULTIMATE AI ENGINE\nconst data = $input.all()[0].json;\n\nasync function generateAIResponse(message, context) {\n  const systemPrompt = `Anda adalah AI Assistant Ultimate untuk ${context.masjid.info.nama}, sistem AI terdepan untuk pelayanan umat Islam.\n\nKARAKTER:\n- Master dalam Islam komprehensif (Al-Quran, Hadits, Fiqh)\n- Bijaksana, sabar, penuh empati\n- Komunikasi santun dalam Bahasa Indonesia\n- Memberikan solusi praktis\n\nKONTEKS:\n- Hari: ${context.day_name}, ${context.current_date}\n- Waktu: ${context.current_time} WIB\n- Shalat selanjutnya: ${context.prayer_data.nextPrayer} (${context.prayer_data.nextTime})\n\nMASJID INFO:\n- Nama: ${context.masjid.info.nama}\n- Alamat: ${context.masjid.info.alamat}\n- Imam: ${context.masjid.info.imam}\n- WhatsApp: ${context.masjid.info.whatsapp}\n\nUSTADZ TERSEDIA:\n${context.masjid.ustadz.map(u => `- ${u.nama}: ${u.spesialisasi.join(', ')}`).join('\\n')}\n\nPEDOMAN:\n✅ Gunakan emoji yang relevan\n✅ Berikan jawaban terstruktur\n✅ Sertakan dalil jika relevan\n✅ Rujuk ustadz untuk masalah kompleks\n✅ Akhiri dengan doa atau motivasi\n❌ Jangan berfatwa tanpa dasar\n❌ Hindari politik/SARA`;\n\n  try {\n    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {\n      method: 'POST',\n      headers: {\n        'Authorization': `Bearer ${context.config.apis.openrouter}`,\n        'Content-Type': 'application/json',\n        'HTTP-Referer': 'https://n8n.cloud',\n        'X-Title': 'Masjid AI Ultimate'\n      },\n      body: JSON.stringify({\n        model: context.config.ai_models.primary,\n        messages: [\n          { role: 'system', content: systemPrompt },\n          { role: 'user', content: message }\n        ],\n        max_tokens: 1500,\n        temperature: 0.7\n      })\n    });\n    \n    if (response.ok) {\n      const result = await response.json();\n      let aiResponse = result.choices[0].message.content;\n      \n      if (!aiResponse.includes('🤲')) {\n        aiResponse = '🤲 ' + aiResponse;\n      }\n      \n      aiResponse += `\\n\\n📱 **LAYANAN LAINNYA:**\\n• \"jadwal\" - Waktu shalat\\n• \"ustadz\" - Konsultasi\\n• \"donasi\" - Rekening\\n• \"info\" - Tentang masjid`;\n      \n      return {\n        response: aiResponse,\n        model: context.config.ai_models.primary,\n        tokens: result.usage?.total_tokens || 0,\n        status: 'success'\n      };\n    } else {\n      throw new Error('AI API Error');\n    }\n  } catch (error) {\n    // Fallback response\n    return {\n      response: `🤖 Sistem AI sedang gangguan.\\n\\n📞 **Bantuan Langsung:**\\n${context.masjid.ustadz.map(u => `👨‍🏫 ${u.nama}: ${u.kontak}`).join('\\n')}\\n📱 Admin: ${context.masjid.info.whatsapp}\\n\\n🔄 Coba lagi nanti.`,\n      model: 'fallback',\n      tokens: 0,\n      status: 'error'\n    };\n  }\n}\n\nconst result = await generateAIResponse(data.message, data);\n\nreturn [{\n  json: {\n    ...data,\n    response: result.response,\n    ai_model: result.model,\n    ai_tokens: result.tokens,\n    ai_status: result.status,\n    response_type: 'AI_ULTIMATE'\n  }\n}];"
+      },
+      "id": "ultimate-ai",
+      "name": "🤖 Ultimate AI Engine",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1200, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🎯 ULTIMATE SERVICE TEMPLATES\nconst data = $input.all()[0].json;\nconst moment = require('moment');\n\nconst services = {\n  jadwal_shalat: () => {\n    const prayerData = data.prayer_data;\n    const times = prayerData.times;\n    \n    let response = `🕌 *JADWAL SHALAT HARI INI*\\n📅 ${moment().format('dddd, DD MMMM YYYY')}\\n📍 ${data.masjid.info.nama}\\n\\n`;\n    \n    response += `🌅 **Subuh:** ${times.fajr} WIB\\n`;\n    response += `🌄 **Terbit:** ${times.sunrise} WIB\\n`;\n    response += `☀️ **Dzuhur:** ${times.dhuhr} WIB\\n`;\n    response += `🌤️ **Ashar:** ${times.asr} WIB\\n`;\n    response += `🌅 **Magrib:** ${times.maghrib} WIB\\n`;\n    response += `🌙 **Isya:** ${times.isha} WIB\\n\\n`;\n    \n    if (data.is_friday && times.jumat) {\n      response += `🕌 **Jumat:** ${times.jumat} WIB\\n\\n`;\n    }\n    \n    response += `⏰ **Shalat Selanjutnya:** ${prayerData.nextPrayer}\\n`;\n    response += `🕐 **Waktu:** ${prayerData.nextTime} WIB\\n`;\n    if (prayerData.countdown) {\n      response += `⏳ **Countdown:** ${prayerData.countdown}\\n\\n`;\n    }\n    \n    response += `🕋 **Arah Kiblat:** 294° dari Utara\\n`;\n    response += `📍 **Lokasi:** ${data.masjid.info.alamat}\\n\\n`;\n    response += `🤲 *\"Aqiimu ash-shalata li dhikrii\"*\\n*\"Dirikanlah shalat untuk mengingat-Ku\"* (QS. Thaha: 14)`;\n    \n    return response;\n  },\n  \n  kiblat_direction: () => {\n    return `🧭 *ARAH KIBLAT*\\n📍 ${data.masjid.info.nama}\\n\\n🕋 **Arah Kiblat:** 294° dari Utara (Barat Laut)\\n🧭 Gunakan kompas atau aplikasi kiblat\\n\\n📱 **Aplikasi Kiblat:**\\n• Muslim Pro\\n• Qibla Compass\\n• Adzan Prayer Times\\n\\n🕌 **Tips:**\\n1. Gunakan kompas akurat\\n2. Hindari gangguan magnetik\\n3. Konfirmasi dengan aplikasi\\n4. Ikuti jamaah masjid\\n\\n🤲 *\"Wa lillahi al-mashriqu wal-maghrib\"*\\n*\"Milik Allah-lah timur dan barat\"* (QS. Al-Baqarah: 115)`;\n  },\n  \n  doa_dzikir: () => {\n    const hour = moment().hour();\n    let response = `🤲 *DOA & DZIKIR HARIAN*\\n\\n`;\n    \n    if (hour >= 4 && hour <= 10) {\n      response += `🌅 **DOA PAGI:**\\n*أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ*\\n*Ashbahnaa wa ashbahal mulku lillaah*\\n*\"Kami memasuki pagi dan kerajaan milik Allah\"*\\n\\n`;\n    }\n    \n    response += `📿 **DZIKIR SETELAH SHALAT:**\\n*سُبْحَانَ اللَّهِ* (33x)\\n*الْحَمْدُ لِلَّهِ* (33x)\\n*اللَّهُ أَكْبَرُ* (34x)\\n\\n`;\n    \n    if (hour >= 15 && hour <= 19) {\n      response += `🌙 **DOA SORE:**\\n*أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ*\\n*Amsaynaa wa amsal mulku lillaah*\\n\\n`;\n    }\n    \n    response += `🔄 **ISTIGHFAR:**\\n*أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ* (100x)\\n\\n📖 **Sumber:** HR. Bukhari & Muslim`;\n    \n    return response;\n  },\n  \n  ayat_quran: () => {\n    return `📖 *AYAT AL-QURAN PILIHAN*\\n\\n🌟 **QS. Al-Baqarah: 255 (Ayat Kursi)**\\n*اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ*\\n*\"Allah, tidak ada Tuhan selain Dia Yang Hidup kekal...\"*\\n\\n🌟 **QS. Al-Ikhlas (1-4)**\\n*قُلْ هُوَ اللَّهُ أَحَدٌ*\\n*\"Katakanlah: Dia-lah Allah, Yang Maha Esa\"*\\n\\n🌟 **QS. Al-Falaq & An-Nas**\\n📿 Mu'awwidzatain (Dua surah pelindung)`;\n  },\n  \n  hadits_sunnah: () => {\n    return `☪️ *HADITS RASULULLAH SAW*\\n\\n🌟 **Hadits Akhlak:**\\n*\"إِنَّمَا بُعِثْتُ لِأُتَمِّمَ صَالِحَ الْأَخْلَاقِ\"*\\n*\"Aku diutus untuk menyempurnakan akhlak baik\"* (HR. Ahmad)\\n\\n🌟 **Hadits Ilmu:**\\n*\"مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ طَرِيقًا إِلَى الْجَنَّةِ\"*\\n*\"Barangsiapa menuntut ilmu, Allah mudahkan jalan ke surga\"* (HR. Muslim)`;\n  },\n  \n  kajian_pengajian: () => {\n    const ustadz = data.masjid.ustadz;\n    return `📚 *JADWAL KAJIAN & PENGAJIAN*\\n📍 ${data.masjid.info.nama}\\n\\n📖 **KAJIAN RUTIN MINGGUAN**\\n\\n🟢 **AHAD - Kajian Keluarga**\\n🕘 09:00-11:00 WIB\\n👨‍🏫 ${ustadz[0].nama}\\n📚 Fiqh Keluarga & Parenting\\n\\n🔵 **SENIN - Tafsir Al-Quran**\\n🕕 19:30-21:00 WIB\\n👨‍🏫 ${ustadz[0].nama}\\n📚 Tafsir Surah Pilihan\\n\\n🟡 **RABU - Fiqh Muamalah**\\n🕗 20:00-21:30 WIB\\n👨‍🏫 ${ustadz[1].nama}\\n📚 Ekonomi Islam\\n\\n🟣 **JUMAT - Kultum**\\n🕐 12:30-13:00 WIB\\n📚 Tema Aktual\\n\\n📞 **Info:** ${data.masjid.info.whatsapp}`;\n  },\n  \n  tpq_tahfidz: () => {\n    return `📚 *PENDIDIKAN QURAN*\\n📍 ${data.masjid.info.nama}\\n\\n👶 **TPQ (Taman Pendidikan Quran)**\\n📅 Selasa-Jumat: 15:00-17:00\\n👥 Usia: 4-12 tahun\\n💰 Rp 150.000/bulan\\n📖 Iqro 1-6, Juz Amma\\n\\n🎓 **TAHFIDZ AL-QURAN**\\n📅 Senin-Kamis: 16:00-18:00\\n👥 Usia: 10+ tahun\\n💰 Rp 200.000/bulan\\n🎯 Target: 1 Juz/6 bulan\\n\\n📞 **Daftar:** ${data.masjid.info.whatsapp}`;\n  },\n  \n  konsultasi_syariah: () => {\n    const ustadz = data.masjid.ustadz;\n    return `🤲 *KONSULTASI SYARIAH*\\n📍 ${data.masjid.info.nama}\\n\\n👨‍🏫 **TIM USTADZ**\\n\\n🟢 **${ustadz[0].nama}**\\n📚 ${ustadz[0].spesialisasi.join(', ')}\\n⏰ ${ustadz[0].jadwal}\\n📱 ${ustadz[0].kontak}\\n\\n🔵 **${ustadz[1].nama}**\\n📚 ${ustadz[1].spesialisasi.join(', ')}\\n⏰ ${ustadz[1].jadwal}\\n📱 ${ustadz[1].kontak}\\n\\n💰 **GRATIS** (Donasi sukarela)`;\n  },\n  \n  donasi_zakat: () => {\n    const banks = data.masjid.rekening.banks;\n    const ewallet = data.masjid.rekening.ewallet;\n    return `💰 *DONASI & ZAKAT*\\n📍 ${data.masjid.info.nama}\\n\\n🏦 **REKENING BANK**\\n\\n💳 **BCA:** ${banks.bca.no}\\na.n. ${banks.bca.name}\\n\\n💳 **Mandiri:** ${banks.mandiri.no}\\na.n. ${banks.mandiri.name}\\n\\n💳 **BRI:** ${banks.bri.no}\\na.n. ${banks.bri.name}\\n\\n📱 **E-WALLET**\\n💰 **DANA:** ${ewallet.dana}\\n💰 **GoPay:** ${ewallet.gopay}\\n💰 **OVO:** ${ewallet.ovo}\\n💰 **ShopeePay:** ${ewallet.shopeepay}\\n\\n📱 **QRIS:** ${data.masjid.rekening.qris}\\n\\n📊 **ZAKAT CALCULATOR**\\n💰 Zakat Mal: 2.5% dari Rp 81jt+\\n🌾 Zakat Profesi: 2.5% dari gaji Rp 7jt+\\n\\n📞 **Konfirmasi:** ${data.masjid.info.whatsapp}\\n🤲 *Jazakumullahu khairan*`;\n  },\n  \n  info_masjid: () => {\n    const masjid = data.masjid;\n    return `🕌 *${masjid.info.nama.toUpperCase()}*\\n\\n📍 **ALAMAT**\\n${masjid.info.alamat}\\n\\n📊 **PROFIL**\\n📅 Berdiri: 15 Maret 1985\\n👥 Kapasitas: ${masjid.info.capacity} jamaah\\n🏛️ Imam: ${masjid.info.imam}\\n\\n📞 **KONTAK**\\n📱 WhatsApp: ${masjid.info.whatsapp}\\n📧 Email: ${masjid.info.email}\\n🌐 Website: ${masjid.info.website}\\n\\n🕐 **JAM OPERASIONAL**\\nIbadah: 24 jam\\nAdmin: 08:00-16:00 WIB`;\n  },\n  \n  salam_greeting: () => {\n    const timeGreeting = () => {\n      const hour = moment().hour();\n      if (hour < 6) return 'dini hari';\n      if (hour < 11) return 'pagi';\n      if (hour < 15) return 'siang';\n      if (hour < 18) return 'sore';\n      return 'malam';\n    };\n    \n    return `وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ\\n\\n*Wa'alaikumussalam warahmatullahi wabarakatuh*\\n\\nSelamat ${timeGreeting()} dan selamat datang di\\n🕌 **${data.masjid.info.nama}**\\n\\n📱 **MENU LAYANAN:**\\n\\n🕌 **IBADAH & SPIRITUAL**\\n1️⃣ Jadwal Shalat\\n2️⃣ Arah Kiblat\\n3️⃣ Doa & Dzikir\\n4️⃣ Ayat Al-Quran\\n5️⃣ Hadits Nabi\\n\\n📚 **PENDIDIKAN**\\n6️⃣ Kajian & Pengajian\\n7️⃣ TPQ & Tahfidz\\n8️⃣ Konsultasi Syariah\\n\\n🤝 **LAYANAN SOSIAL**\\n9️⃣ Donasi & Zakat\\n🔟 Info Masjid\\n\\n💬 Ketik nama layanan atau chat langsung\\n🤖 AI Assistant siap 24/7!\\n\\n🕐 ${moment().format('HH:mm')} WIB - ${moment().format('dddd, DD/MM/YYYY')}`;\n  }\n};\n\nconst template = services[data.intent];\nif (!template) {\n  return [{\n    json: {\n      ...data,\n      response: `❌ Service \"${data.intent}\" belum tersedia.\\n\\nKetik \"menu\" untuk layanan atau chat dengan AI.`,\n      response_type: 'SERVICE_NOT_FOUND'\n    }\n  }];\n}\n\nconst response = template();\n\nreturn [{\n  json: {\n    ...data,\n    response: response,\n    response_type: 'ULTIMATE_SERVICE'\n  }\n}];"
+      },
+      "id": "ultimate-services",
+      "name": "🎯 Ultimate Services",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1200, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.fonnte.com/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_WHATSAPP_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "target",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.response }}"
+            },
+            {
+              "name": "countryCode",
+              "value": "62"
+            }
+          ]
+        }
+      },
+      "id": "whatsapp-sender",
+      "name": "📤 Ultimate Sender",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1450, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.config.apis.supabase_url }}/rest/v1/ultimate_analytics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.config.apis.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $json.config.apis.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user_phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "intent",
+              "value": "={{ $json.intent }}"
+            },
+            {
+              "name": "confidence",
+              "value": "={{ $json.confidence }}"
+            },
+            {
+              "name": "response_type",
+              "value": "={{ $json.response_type }}"
+            },
+            {
+              "name": "ai_model",
+              "value": "={{ $json.ai_model || 'none' }}"
+            },
+            {
+              "name": "ai_tokens",
+              "value": "={{ $json.ai_tokens || 0 }}"
+            },
+            {
+              "name": "processing_time",
+              "value": "={{ $json.processing_time }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $json.timestamp }}"
+            },
+            {
+              "name": "day_name",
+              "value": "={{ $json.day_name }}"
+            },
+            {
+              "name": "is_friday",
+              "value": "={{ $json.is_friday }}"
+            },
+            {
+              "name": "success",
+              "value": true
+            }
+          ]
+        }
+      },
+      "id": "analytics-logger",
+      "name": "📊 Analytics Logger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1450, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Ultimate workflow completed\",\n  \"data\": {\n    \"phone\": $json.phone,\n    \"intent\": $json.intent,\n    \"confidence\": $json.confidence,\n    \"response_type\": $json.response_type,\n    \"processing_time\": $json.processing_time + \"ms\",\n    \"timestamp\": $json.timestamp,\n    \"version\": $json.version\n  }\n} }}"
+      },
+      "id": "success-response",
+      "name": "✅ Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1700, 450]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": false,\n  \"error\": $json.error,\n  \"phone\": $json.phone,\n  \"timestamp\": $json.timestamp,\n  \"help\": \"Contact admin: +62-812-3456-7890\"\n} }}"
+      },
+      "id": "error-response",
+      "name": "❌ Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [950, 600]
+    }
+  ],
+  "connections": {
+    "🌐 Ultimate Gateway": {
+      "main": [
+        [
+          {
+            "node": "🧠 Ultimate Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Ultimate Processor": {
+      "main": [
+        [
+          {
+            "node": "🔍 Error Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Error Check": {
+      "main": [
+        [
+          {
+            "node": "🤖 AI Route?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🎯 Ultimate Services",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "❌ Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 AI Route?": {
+      "main": [
+        [
+          {
+            "node": "🤖 Ultimate AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "🤖 Ultimate AI Engine": {
+      "main": [
+        [
+          {
+            "node": "📤 Ultimate Sender",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📊 Analytics Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎯 Ultimate Services": {
+      "main": [
+        [
+          {
+            "node": "📤 Ultimate Sender",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📊 Analytics Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Ultimate Sender": {
+      "main": [
+        [
+          {
+            "node": "✅ Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Analytics Logger": {
+      "main": [
+        [
+          {
+            "node": "✅ Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4.0",
+  "id": "masjid-ai-ultimate-cloud",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "id": "ultimate",
+      "name": "Ultimate Edition"
+    },
+    {
+      "id": "cloud-ready",
+      "name": "Cloud Ready"
+    },
+    {
+      "id": "comprehensive",
+      "name": "Comprehensive"
+    }
+  ]
+}
