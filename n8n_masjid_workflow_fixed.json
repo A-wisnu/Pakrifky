@@ -1,0 +1,282 @@
+{
+  "name": "Masjid AI Enhanced Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-whatsapp",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-whatsapp-trigger",
+      "name": "WhatsApp Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        300
+      ],
+      "webhookId": "whatsapp-masjid-ai"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Enhanced WhatsApp Message Processor with AI\nconst openRouterApiKey = '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';\nconst supabaseUrl = 'https://bvaxxlmhrzocbrqiykoqul.supabase.co';\nconst supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXh4bG1ocnpvY2JycWl5a29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NjMxMDMsImV4cCI6MjA2OTQzOTEwM30.GjDhx8BUR7Y4FUS2PZalEeDhKVt_zQWGTEV_5nKKgrg';\n\n// Masjid Configuration\nconst masjidInfo = {\n  nama: 'Masjid Al-Ikhlas',\n  alamat: 'Jl. Raya Masjid No. 123, Jakarta Selatan 12345',\n  whatsapp: '+62-812-3456-7890',\n  email: 'info@masjidalukhlas.id',\n  website: 'https://masjidalukhlas.id'\n};\n\nconst rekening = {\n  bca: '1234567890',\n  mandiri: '0987654321',\n  bri: '5555666677778888',\n  qris: 'https://example.com/qris-masjid.png'\n};\n\nconst ustadz = [\n  {\n    nama: 'Ustadz Ahmad Dahlan',\n    spesialisasi: ['Fiqh', 'Akhlaq', 'Tafsir'],\n    jadwal: 'Senin-Kamis 19:00-21:00',\n    kontak: '+62-813-1111-2222'\n  },\n  {\n    nama: 'Ustadz Muhammad Ridwan',\n    spesialisasi: ['Muamalah', 'Ekonomi Islam', 'Keluarga'],\n    jadwal: 'Selasa-Jumat 08:00-12:00',\n    kontak: '+62-813-3333-4444'\n  }\n];\n\n// Intent Classification Function\nfunction classifyIntent(message) {\n  const msg = message.toLowerCase();\n  \n  const intents = {\n    jadwal_shalat: ['jadwal shalat', 'waktu shalat', 'adzan', 'subuh', 'dzuhur', 'ashar', 'magrib', 'isya'],\n    kajian_info: ['kajian', 'pengajian', 'ceramah', 'ustadz', 'kuliah agama'],\n    donasi_infaq: ['donasi', 'infaq', 'sedekah', 'zakat', 'transfer', 'rekening', 'qris'],\n    acara_kegiatan: ['acara', 'event', 'kegiatan', 'agenda', 'program'],\n    informasi_umum: ['info', 'alamat', 'kontak', 'lokasi', 'jam buka', 'fasilitas'],\n    daftar_nikah: ['nikah', 'menikah', 'akad', 'pernikahan', 'syarat nikah'],\n    konsultasi_agama: ['konsultasi', 'tanya', 'bantuan', 'bimbingan', 'nasihat'],\n    salam_greeting: ['assalamualaikum', 'salam', 'halo', 'hai', 'selamat'],\n    ai_chat: ['chat', 'tanya', 'bagaimana', 'kenapa', 'apa itu', 'jelaskan']\n  };\n  \n  for (const [intent, keywords] of Object.entries(intents)) {\n    if (keywords.some(keyword => msg.includes(keyword))) {\n      return intent;\n    }\n  }\n  \n  return 'ai_chat';\n}\n\n// Response Generators\nfunction generatePrayerResponse() {\n  const times = {\n    fajr: '04:30',\n    dhuhr: '12:15',\n    asr: '15:30',\n    maghrib: '18:45',\n    isha: '20:00'\n  };\n  \n  return `🕌 *Jadwal Shalat Hari Ini*\\n📍 ${masjidInfo.nama}\\n\\n🌅 Subuh: ${times.fajr}\\n☀️ Dzuhur: ${times.dhuhr}\\n🌤️ Ashar: ${times.asr}\\n🌅 Magrib: ${times.maghrib}\\n🌙 Isya: ${times.isha}\\n\\n📱 Ketik 'reminder shalat' untuk pengingat\\n🤲 Semoga bermanfaat!`;\n}\n\nfunction generateKajianResponse() {\n  return `📚 *Jadwal Kajian & Pengajian*\\n📍 ${masjidInfo.nama}\\n\\n📅 **Senin, 15 Jan**\\n🕐 19:30-21:00 WIB\\n👨‍🏫 ${ustadz[0].nama}\\n📖 Akhlaq dalam Kehidupan\\n📍 Aula Masjid\\n\\n📅 **Kamis, 18 Jan**\\n🕐 20:00-21:30 WIB\\n👨‍🏫 ${ustadz[1].nama}\\n📖 Fiqh Muamalah\\n📍 Ruang Kajian\\n\\n📞 Info: ${masjidInfo.whatsapp}\\n🤲 Barakallahu fiikum!`;\n}\n\nfunction generateDonationResponse() {\n  return `💰 *Donasi & Infaq ${masjidInfo.nama}*\\n\\n🏦 **Transfer Bank:**\\n🏧 BCA: ${rekening.bca}\\n🏧 Mandiri: ${rekening.mandiri}\\n🏧 BRI: ${rekening.bri}\\na.n Masjid Al-Ikhlas\\n\\n📱 **QRIS:**\\n${rekening.qris}\\n\\n🙏 Jazakallahu khairan!\\n📞 Konfirmasi: ${masjidInfo.whatsapp}`;\n}\n\nfunction generateInfoResponse() {\n  return `🕌 *${masjidInfo.nama}*\\n\\n📍 **Alamat:**\\n${masjidInfo.alamat}\\n\\n📞 **Kontak:**\\n📱 ${masjidInfo.whatsapp}\\n📧 ${masjidInfo.email}\\n🌐 ${masjidInfo.website}\\n\\n🕐 **Jam Buka:** 04:30 - 22:00 WIB\\n\\n🏢 **Fasilitas:**\\n✅ Tempat Wudhu Terpisah\\n✅ Parkir Luas\\n✅ AC & Sound System\\n✅ Perpustakaan\\n✅ Ruang Kajian\\n\\n🤲 Selamat datang di masjid kami!`;\n}\n\nfunction generateEventResponse() {\n  return `📅 *Agenda Kegiatan ${masjidInfo.nama}*\\n\\n📋 **Kajian Rutin Senin**\\n📅 15 Jan | 🕐 19:30-21:00\\n📍 Aula Masjid\\n👥 Umum | 💰 Gratis\\n\\n📋 **Bakti Sosial**\\n📅 20 Jan | 🕐 08:00-12:00\\n📍 Lapangan Masjid\\n👥 Jamaah | 💰 Gratis\\n\\n📞 Info: ${masjidInfo.whatsapp}\\n📝 Daftarkan diri Anda!`;\n}\n\nfunction generateMarriageResponse() {\n  return `💒 *Pendaftaran Nikah - ${masjidInfo.nama}*\\n\\n📋 **Dokumen Diperlukan:**\\n📄 KTP Calon Pengantin\\n📄 Surat Belum Menikah\\n📄 Persetujuan Orang Tua\\n📄 Pas Foto 3x4 (4 lembar)\\n📄 Surat Keterangan Sehat\\n\\n📝 **Tahapan:**\\n1. Konsultasi pra-nikah\\n2. Melengkapi berkas\\n3. Verifikasi dokumen\\n4. Jadwal akad\\n5. Pelaksanaan\\n\\n👨‍🏫 **Narahubung:**\\n${ustadz[0].nama}: ${ustadz[0].kontak}\\n\\n🤲 Semoga Allah mudahkan!`;\n}\n\nfunction generateConsultationResponse() {\n  return `🤲 *Konsultasi Keagamaan*\\n📍 ${masjidInfo.nama}\\n\\n💡 **Bidang Konsultasi:**\\n\\n📚 **Fiqh & Ibadah**\\n👨‍🏫 ${ustadz[0].nama}\\n⏰ ${ustadz[0].jadwal}\\n\\n📚 **Muamalah & Keluarga**\\n👨‍🏫 ${ustadz[1].nama}\\n⏰ ${ustadz[1].jadwal}\\n\\n📱 **Cara Konsultasi:**\\n1. Hubungi: ${masjidInfo.whatsapp}\\n2. Jelaskan masalah\\n3. Atur jadwal\\n\\n🙏 Semoga Allah berikan solusi`;\n}\n\nfunction generateGreetingResponse() {\n  return `وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ\\n\\nWa'alaikumussalam warahmatullahi wabarakatuh\\n\\nSelamat datang di ${masjidInfo.nama}! 🕌\\n\\n📝 **Menu Layanan:**\\n\\n1️⃣ Jadwal Shalat\\n2️⃣ Info Kajian\\n3️⃣ Donasi & Infaq\\n4️⃣ Acara Masjid\\n5️⃣ Info Umum\\n6️⃣ Daftar Nikah\\n7️⃣ Konsultasi\\n8️⃣ Chat AI\\n\\n💬 Ketik nama layanan atau langsung chat!\\n🤖 Saya siap membantu 24/7`;\n}\n\n// AI Chat Function using OpenRouter\nasync function generateAIResponse(message, userPhone) {\n  try {\n    const systemPrompt = `Anda adalah AI Assistant untuk ${masjidInfo.nama}. Berikan respons yang membantu, islami, dan sopan. Gunakan bahasa Indonesia yang mudah dipahami. Jika ditanya tentang Islam, berikan jawaban berdasarkan Al-Quran dan Hadits shahih. Selalu rujuk ke ustadz untuk pertanyaan fiqh yang kompleks.\\n\\nInformasi Masjid:\\n- Nama: ${masjidInfo.nama}\\n- Alamat: ${masjidInfo.alamat}\\n- Kontak: ${masjidInfo.whatsapp}\\n- Website: ${masjidInfo.website}\\n\\nUstadz yang tersedia:\\n${ustadz.map(u => `- ${u.nama} (${u.spesialisasi.join(', ')}) - ${u.jadwal}`).join('\\n')}`;\n    \n    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {\n      method: 'POST',\n      headers: {\n        'Authorization': `Bearer ${openRouterApiKey}`,\n        'Content-Type': 'application/json',\n        'HTTP-Referer': 'https://masjid-ai.com',\n        'X-Title': 'Masjid AI Assistant'\n      },\n      body: JSON.stringify({\n        model: 'moonshotai/kimi-k2:free',\n        messages: [\n          { role: 'system', content: systemPrompt },\n          { role: 'user', content: message }\n        ],\n        max_tokens: 1000,\n        temperature: 0.7\n      })\n    });\n    \n    if (response.ok) {\n      const data = await response.json();\n      let aiResponse = data.choices[0].message.content;\n      \n      if (!aiResponse.includes('🤲') && !aiResponse.includes('Assalam')) {\n        aiResponse = '🤲 ' + aiResponse;\n      }\n      \n      aiResponse += '\\n\\n💡 Ketik \"menu\" untuk layanan lain atau chat langsung untuk pertanyaan!';\n      \n      return aiResponse;\n    } else {\n      return 'Maaf, saya sedang mengalami gangguan. Silakan coba lagi dalam beberapa saat atau hubungi admin di ' + masjidInfo.whatsapp;\n    }\n  } catch (error) {\n    return 'Maaf, terjadi kesalahan teknis. Untuk pertanyaan mendesak, silakan hubungi ' + masjidInfo.whatsapp;\n  }\n}\n\n// Main Processing Logic\nconst startTime = Date.now();\nconst body = $input.all()[0].body;\n\n// Extract message data (support multiple WhatsApp providers)\nlet phone, message, messageType;\n\n// Fonnte format\nif (body.device && body.message) {\n  phone = body.device;\n  message = body.message;\n  messageType = body.message_type || 'text';\n}\n// Woowa format\nelse if (body.from && body.body) {\n  phone = body.from;\n  message = body.body;\n  messageType = body.type || 'text';\n}\n// WhatsApp Business API format\nelse if (body.entry && body.entry[0]) {\n  const entry = body.entry[0];\n  if (entry.changes && entry.changes[0]) {\n    const change = entry.changes[0];\n    if (change.value && change.value.messages) {\n      const msg = change.value.messages[0];\n      phone = msg.from;\n      message = msg.text ? msg.text.body : '';\n      messageType = msg.type;\n    }\n  }\n}\n// Generic format\nelse if (body.phone && body.message) {\n  phone = body.phone;\n  message = body.message;\n  messageType = body.type || 'text';\n}\n\n// Validate input\nif (!phone || !message) {\n  return [{\n    json: {\n      error: 'Invalid webhook format',\n      phone: phone || 'unknown',\n      message: message || 'empty',\n      hasError: true,\n      errorType: 'validation'\n    }\n  }];\n}\n\n// Clean phone number\nphone = phone.replace(/[^0-9+]/g, '');\nif (phone.startsWith('0')) {\n  phone = '+62' + phone.substring(1);\n} else if (phone.startsWith('62')) {\n  phone = '+' + phone;\n}\n\n// Only process text messages\nif (messageType !== 'text') {\n  return [{\n    json: {\n      phone: phone,\n      response: '📱 Saat ini saya hanya bisa memproses pesan teks. Silakan kirim pesan teks untuk mendapat bantuan.\\n\\n📞 Untuk urgent: ' + masjidInfo.whatsapp,\n      intent: 'media_message',\n      hasError: false,\n      processing_time: Date.now() - startTime\n    }\n  }];\n}\n\n// Classify intent\nconst intent = classifyIntent(message);\nlet response = '';\n\n// Generate response based on intent\nswitch (intent) {\n  case 'jadwal_shalat':\n    response = generatePrayerResponse();\n    break;\n  case 'kajian_info':\n    response = generateKajianResponse();\n    break;\n  case 'donasi_infaq':\n    response = generateDonationResponse();\n    break;\n  case 'acara_kegiatan':\n    response = generateEventResponse();\n    break;\n  case 'informasi_umum':\n    response = generateInfoResponse();\n    break;\n  case 'daftar_nikah':\n    response = generateMarriageResponse();\n    break;\n  case 'konsultasi_agama':\n    response = generateConsultationResponse();\n    break;\n  case 'salam_greeting':\n    response = generateGreetingResponse();\n    break;\n  case 'ai_chat':\n  default:\n    response = await generateAIResponse(message, phone);\n    break;\n}\n\n// Add signature\nresponse += '\\n\\n━━━━━━━━━━━━━━━━━━━━━\\n🕌 ' + masjidInfo.nama + '\\n📱 AI Assistant v3.0\\n🤖 Melayani dengan ❤️ 24/7';\n\n// Return formatted response\nreturn [{\n  json: {\n    phone: phone,\n    message: message,\n    intent: intent,\n    response: response,\n    timestamp: new Date().toISOString(),\n    processing_time: Date.now() - startTime,\n    hasError: false,\n    whatsapp_api_key: 'YOUR_WHATSAPP_API_KEY', // Will be replaced in next node\n    supabase_url: supabaseUrl,\n    supabase_key: supabaseKey\n  }\n}];"
+      },
+      "id": "enhanced-message-processor",
+      "name": "Enhanced Message Processor",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasError }}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "error-check",
+      "name": "Error Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.fonnte.com/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_WHATSAPP_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "target",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.response }}"
+            },
+            {
+              "name": "countryCode",
+              "value": "62"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-whatsapp-message",
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        950,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabase_url }}/rest/v1/usage_analytics",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user_phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "interaction_type",
+              "value": "={{ $json.intent }}"
+            },
+            {
+              "name": "intent",
+              "value": "={{ $json.intent }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $json.timestamp }}"
+            },
+            {
+              "name": "response_time",
+              "value": "={{ $json.processing_time }}"
+            },
+            {
+              "name": "success",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-to-supabase",
+      "name": "Log to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        950,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"message\": \"Message processed and sent successfully\",\n  \"phone\": $json.phone,\n  \"intent\": $json.intent,\n  \"processing_time\": $json.processing_time + \"ms\",\n  \"timestamp\": $json.timestamp\n} }}"
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        275
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": false,\n  \"error\": \"Message processing failed\",\n  \"errorType\": $json.errorType || \"unknown\",\n  \"phone\": $json.phone || \"unknown\",\n  \"message\": $json.message || \"empty\",\n  \"timestamp\": new Date().toISOString()\n} }}"
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        950,
+        450
+      ]
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Enhanced Message Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced Message Processor": {
+      "main": [
+        [
+          {
+            "node": "Error Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Check": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2",
+  "id": "masjid-ai-enhanced-workflow-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    {
+      "id": "masjid-ai",
+      "name": "Masjid AI"
+    },
+    {
+      "id": "whatsapp-bot",
+      "name": "WhatsApp Bot"
+    },
+    {
+      "id": "islamic-assistant",
+      "name": "Islamic Assistant"
+    }
+  ]
+}
