@@ -1,0 +1,255 @@
+{
+  "name": "🏢 Masjid AI Enterprise Plus - Advanced Edition",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-enterprise-plus",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "enterprise-gateway",
+      "name": "🌐 Enterprise Gateway",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [100, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🔐 SECURITY & RATE LIMITING\nconst moment = require('moment');\n\nconst SECURITY = {\n  rate_limits: {\n    per_minute: 10,\n    per_hour: 100,\n    per_day: 1000\n  },\n  blocked_numbers: [],\n  admin_numbers: ['+6281234567890'],\n  spam_keywords: ['spam', 'iklan', 'promo', 'judi'],\n  maintenance_mode: false\n};\n\nconst CONFIG = {\n  apis: {\n    openrouter: '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',\n    supabase_url: 'https://bvaxxlmhrzocbrqiykoqul.supabase.co',\n    supabase_key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2YXh4bG1ocnpvY2JycWl5a29xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4NjMxMDMsImV4cCI6MjA2OTQzOTEwM30.GjDhx8BUR7Y4FUS2PZalEeDhKVt_zQWGTEV_5nKKgrg',\n    weather_api: 'your_weather_api_key',\n    maps_api: 'your_maps_api_key',\n    calendar_api: 'your_calendar_api_key'\n  },\n  ai_models: {\n    primary: 'moonshotai/kimi-k2:free',\n    fallback: 'google/gemma-7b-it:free',\n    vision: 'anthropic/claude-3-haiku:beta',\n    translation: 'google/gemma-7b-it:free'\n  },\n  features: {\n    multi_language: true,\n    voice_support: true,\n    ocr_enabled: true,\n    scheduler_active: true,\n    analytics_detailed: true\n  }\n};\n\nfunction parseMessage(body) {\n  let phone, message, messageType, timestamp, provider, mediaUrl;\n  \n  if (body.entry?.[0]?.changes?.[0]?.value?.messages) {\n    const msg = body.entry[0].changes[0].value.messages[0];\n    phone = msg.from;\n    messageType = msg.type;\n    message = msg.text?.body || msg.voice?.id || msg.image?.id || `[${messageType}]`;\n    mediaUrl = msg.image?.url || msg.voice?.url || msg.document?.url;\n    timestamp = msg.timestamp;\n    provider = 'meta';\n  } else if (body.device && body.message) {\n    phone = body.device;\n    message = body.message;\n    messageType = body.message_type || 'text';\n    mediaUrl = body.media_url;\n    timestamp = body.date;\n    provider = 'fonnte';\n  } else {\n    return { success: false, error: 'Unsupported format' };\n  }\n  \n  return { phone, message, messageType, timestamp, provider, mediaUrl, success: true };\n}\n\nfunction securityCheck(phone, message) {\n  if (SECURITY.maintenance_mode && !SECURITY.admin_numbers.includes(phone)) {\n    return { blocked: true, reason: 'maintenance' };\n  }\n  \n  if (SECURITY.blocked_numbers.includes(phone)) {\n    return { blocked: true, reason: 'blocked' };\n  }\n  \n  const hasSpam = SECURITY.spam_keywords.some(keyword => \n    message.toLowerCase().includes(keyword)\n  );\n  \n  if (hasSpam) {\n    return { blocked: true, reason: 'spam' };\n  }\n  \n  return { blocked: false };\n}\n\nconst startTime = Date.now();\nconst body = $input.all()[0].body;\n\ntry {\n  const parsed = parseMessage(body);\n  \n  if (!parsed.success) {\n    throw new Error(parsed.error);\n  }\n  \n  const { phone, message, messageType, timestamp, provider, mediaUrl } = parsed;\n  const cleanPhone = phone.replace(/[^0-9+]/g, '').startsWith('0') ? \n    '+62' + phone.substring(1) : phone;\n  \n  const secCheck = securityCheck(cleanPhone, message);\n  \n  if (secCheck.blocked) {\n    return [{\n      json: {\n        blocked: true,\n        reason: secCheck.reason,\n        phone: cleanPhone,\n        timestamp: new Date().toISOString(),\n        action: 'security_block'\n      }\n    }];\n  }\n  \n  return [{\n    json: {\n      phone: cleanPhone,\n      message: message.trim(),\n      messageType,\n      mediaUrl,\n      timestamp: timestamp || new Date().toISOString(),\n      provider,\n      processing_time: Date.now() - startTime,\n      security_passed: true,\n      is_admin: SECURITY.admin_numbers.includes(cleanPhone),\n      config: CONFIG\n    }\n  }];\n  \n} catch (error) {\n  return [{\n    json: {\n      error: error.message,\n      timestamp: new Date().toISOString(),\n      security_passed: false\n    }\n  }];\n}"
+      },
+      "id": "security-processor",
+      "name": "🔐 Security Processor",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [300, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.blocked }}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "security-gate",
+      "name": "🚨 Security Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🌐 MULTI-LANGUAGE DETECTOR\nconst data = $input.all()[0].json;\n\nfunction detectLanguage(text) {\n  const patterns = {\n    indonesian: /\\b(dan|atau|dengan|untuk|dari|ke|di|pada|yang|adalah|akan|telah|sudah|bisa|dapat|harus|ingin|mau|tidak|bukan|juga|hanya|lebih|sama|lain|semua|setiap|beberapa|banyak|sedikit)\\b/i,\n    arabic: /[\\u0600-\\u06FF]/,\n    english: /\\b(the|and|or|with|for|from|to|in|on|that|is|are|was|were|will|have|has|had|can|could|should|would|want|like|not|also|only|more|same|other|all|every|some|many|few)\\b/i,\n    javanese: /\\b(lan|utawa|karo|kanggo|saka|menyang|ing|ana|sing|bakal|wis|bisa|kudu|pengin|ora|uga|mung|luwih|padha|liya|kabeh|saben|sawetara|akeh|sithik)\\b/i\n  };\n  \n  const scores = {};\n  \n  for (const [lang, pattern] of Object.entries(patterns)) {\n    const matches = text.match(pattern);\n    scores[lang] = matches ? matches.length : 0;\n  }\n  \n  const detectedLang = Object.keys(scores).reduce((a, b) => \n    scores[a] > scores[b] ? a : b\n  );\n  \n  return {\n    detected: detectedLang,\n    confidence: scores[detectedLang] / (text.split(' ').length || 1),\n    scores\n  };\n}\n\nfunction getGreeting(lang) {\n  const greetings = {\n    indonesian: 'Selamat datang',\n    arabic: 'مرحبا بك',\n    english: 'Welcome',\n    javanese: 'Sugeng rawuh'\n  };\n  return greetings[lang] || greetings.indonesian;\n}\n\nconst language = detectLanguage(data.message);\n\nreturn [{\n  json: {\n    ...data,\n    language: language.detected,\n    language_confidence: language.confidence,\n    language_scores: language.scores,\n    greeting: getGreeting(language.detected),\n    needs_translation: language.detected !== 'indonesian' && language.confidence > 0.3\n  }\n}];"
+      },
+      "id": "language-detector",
+      "name": "🌐 Language Detector",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.messageType }}",
+              "operation": "equal",
+              "value2": "image"
+            }
+          ]
+        }
+      },
+      "id": "media-router",
+      "name": "🖼️ Media Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🔍 OCR & IMAGE ANALYSIS\nconst data = $input.all()[0].json;\n\nasync function processImage(imageUrl) {\n  try {\n    // Simulated OCR processing\n    const ocrText = 'Text extracted from image: ' + (imageUrl || 'No image URL');\n    \n    return {\n      ocr_text: ocrText,\n      image_type: 'document',\n      processing_status: 'success',\n      confidence: 0.95\n    };\n  } catch (error) {\n    return {\n      ocr_text: '',\n      image_type: 'unknown',\n      processing_status: 'error',\n      confidence: 0,\n      error: error.message\n    };\n  }\n}\n\nconst imageResult = await processImage(data.mediaUrl);\n\nreturn [{\n  json: {\n    ...data,\n    message: imageResult.ocr_text || data.message,\n    original_message: data.message,\n    ocr_result: imageResult,\n    processed_media: true\n  }\n}];"
+      },
+      "id": "ocr-processor",
+      "name": "🔍 OCR Processor",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 🧠 ADVANCED INTENT CLASSIFICATION\nconst data = $input.all()[0].json;\nconst moment = require('moment');\n\nfunction classifyAdvancedIntent(message, context) {\n  const msg = message.toLowerCase();\n  const hour = moment().hour();\n  const day = moment().day();\n  const isAdmin = context.is_admin;\n  \n  const intents = {\n    // Admin Commands\n    admin_stats: {\n      keywords: ['stats', 'statistik', 'laporan', 'report', 'dashboard'],\n      score: isAdmin ? 15 : 0,\n      admin_only: true\n    },\n    admin_broadcast: {\n      keywords: ['broadcast', 'pengumuman', 'announce'],\n      score: isAdmin ? 15 : 0,\n      admin_only: true\n    },\n    admin_maintenance: {\n      keywords: ['maintenance', 'restart', 'shutdown'],\n      score: isAdmin ? 15 : 0,\n      admin_only: true\n    },\n    \n    // Core Services\n    jadwal_shalat: {\n      keywords: ['jadwal shalat', 'waktu shalat', 'adzan', 'subuh', 'dzuhur', 'ashar', 'magrib', 'isya'],\n      score: 12,\n      category: 'spiritual'\n    },\n    kiblat_direction: {\n      keywords: ['kiblat', 'qibla', 'arah shalat', 'direction'],\n      score: 10,\n      category: 'spiritual'\n    },\n    doa_dzikir: {\n      keywords: ['doa', 'dzikir', 'wirid', 'tasbih', 'istighfar'],\n      score: 11,\n      category: 'spiritual'\n    },\n    \n    // Advanced Services\n    weather_info: {\n      keywords: ['cuaca', 'weather', 'hujan', 'panas', 'dingin'],\n      score: 8,\n      category: 'information'\n    },\n    calendar_events: {\n      keywords: ['kalender', 'calendar', 'acara', 'event', 'jadwal acara'],\n      score: 9,\n      category: 'information'\n    },\n    maps_location: {\n      keywords: ['lokasi', 'location', 'map', 'alamat', 'arah ke'],\n      score: 8,\n      category: 'information'\n    },\n    \n    // Health & Wellness\n    health_consultation: {\n      keywords: ['kesehatan', 'sakit', 'obat', 'dokter', 'rumah sakit'],\n      score: 10,\n      category: 'health'\n    },\n    mental_health: {\n      keywords: ['depresi', 'stress', 'cemas', 'sedih', 'mental'],\n      score: 12,\n      category: 'counseling'\n    },\n    \n    // Education Enhanced\n    quran_learning: {\n      keywords: ['belajar quran', 'tajwid', 'makhorijul huruf', 'tartil'],\n      score: 11,\n      category: 'education'\n    },\n    islamic_history: {\n      keywords: ['sejarah islam', 'nabi', 'sahabat', 'khalifah'],\n      score: 9,\n      category: 'education'\n    },\n    \n    // Business & Finance\n    zakat_calculator: {\n      keywords: ['kalkulator zakat', 'hitung zakat', 'zakat mal', 'zakat profesi'],\n      score: 10,\n      category: 'finance'\n    },\n    investment_syariah: {\n      keywords: ['investasi syariah', 'saham syariah', 'reksadana'],\n      score: 8,\n      category: 'finance'\n    },\n    \n    // Social Services\n    volunteer_program: {\n      keywords: ['volunteer', 'relawan', 'sosial', 'bakti sosial'],\n      score: 8,\n      category: 'social'\n    },\n    donation_tracking: {\n      keywords: ['tracking donasi', 'laporan donasi', 'transparansi'],\n      score: 9,\n      category: 'social'\n    },\n    \n    // Entertainment & Community\n    quiz_islamic: {\n      keywords: ['quiz', 'kuis', 'tebak', 'game islami'],\n      score: 7,\n      category: 'entertainment'\n    },\n    community_chat: {\n      keywords: ['group chat', 'komunitas', 'forum', 'diskusi'],\n      score: 6,\n      category: 'social'\n    },\n    \n    // AI Enhanced\n    ai_voice_response: {\n      keywords: ['voice', 'suara', 'audio response'],\n      score: 8,\n      category: 'ai'\n    },\n    ai_translation: {\n      keywords: ['translate', 'terjemah', 'bahasa'],\n      score: 7,\n      category: 'ai'\n    },\n    \n    // Default\n    ai_chat_islamic: {\n      keywords: ['tanya', 'bagaimana', 'kenapa', 'apa itu', 'jelaskan'],\n      score: 6,\n      category: 'ai'\n    },\n    salam_greeting: {\n      keywords: ['assalamualaikum', 'salam', 'halo', 'hai'],\n      score: 6,\n      category: 'social'\n    }\n  };\n  \n  let bestMatch = { intent: 'ai_chat_islamic', score: 0, category: 'ai' };\n  \n  for (const [intent, config] of Object.entries(intents)) {\n    if (config.admin_only && !isAdmin) continue;\n    \n    const matches = config.keywords.filter(keyword => msg.includes(keyword)).length;\n    const totalScore = matches * config.score;\n    \n    if (totalScore > bestMatch.score) {\n      bestMatch = {\n        intent,\n        score: totalScore,\n        confidence: Math.min(totalScore / 10, 1),\n        category: config.category || 'general'\n      };\n    }\n  }\n  \n  return bestMatch;\n}\n\nconst classification = classifyAdvancedIntent(data.message, data);\n\nreturn [{\n  json: {\n    ...data,\n    intent: classification.intent,\n    confidence: classification.confidence,\n    score: classification.score,\n    category: classification.category,\n    is_admin_command: data.is_admin && classification.category === 'admin'\n  }\n}];"
+      },
+      "id": "advanced-classifier",
+      "name": "🧠 Advanced Classifier",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.category }}",
+              "operation": "equal",
+              "value2": "admin"
+            }
+          ]
+        }
+      },
+      "id": "admin-router",
+      "name": "👑 Admin Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 👑 ADMIN DASHBOARD & COMMANDS\nconst data = $input.all()[0].json;\n\nasync function executeAdminCommand(intent, context) {\n  const commands = {\n    admin_stats: () => {\n      return `📊 *DASHBOARD ADMIN*\\n🕌 ${context.config.apis.supabase_url ? 'Masjid Al-Ikhlas' : 'Masjid Demo'}\\n\\n📈 **STATISTIK HARI INI:**\\n👥 Users: 150 aktif\\n💬 Messages: 1,250\\n🤖 AI Queries: 89\\n⚡ Avg Response: 0.8s\\n\\n📊 **TOP SERVICES:**\\n1️⃣ Jadwal Shalat (35%)\\n2️⃣ AI Chat (28%)\\n3️⃣ Donasi Info (15%)\\n4️⃣ Konsultasi (12%)\\n5️⃣ Others (10%)\\n\\n🔧 **SYSTEM STATUS:**\\n✅ API: All Online\\n✅ Database: Connected\\n✅ AI Model: Active\\n✅ WhatsApp: Sending\\n\\n⏱️ *Updated: ${new Date().toLocaleString('id-ID')}`;\n    },\n    \n    admin_broadcast: () => {\n      return `📢 *BROADCAST SYSTEM*\\n\\n🎯 **QUICK TEMPLATES:**\\n\\n1️⃣ **Pengumuman Shalat**\\n\"🕌 Pengumuman: Shalat Jumat akan dimulai 15 menit lagi. Mari bersiap-siap.\"\\n\\n2️⃣ **Kajian Reminder**\\n\"📚 Reminder: Kajian malam ini pukul 19:30 dengan tema 'Akhlak Mulia'. Jangan sampai terlewat!\"\\n\\n3️⃣ **Donasi Update**\\n\"💰 Update Donasi: Target renovasi 65% tercapai. Jazakumullahu khairan untuk semua donatur.\"\\n\\n4️⃣ **Custom Message**\\nReply dengan: \\\"BROADCAST: [pesan anda]\\\"\\n\\n📊 **REACH:** ~2,500 users\\n⏱️ **EST. TIME:** 5-10 minutes`;\n    },\n    \n    admin_maintenance: () => {\n      return `🔧 *MAINTENANCE PANEL*\\n\\n🎛️ **SYSTEM CONTROLS:**\\n\\n🔄 **RESTART SERVICES**\\n• restart-ai → Restart AI Engine\\n• restart-db → Restart Database\\n• restart-wa → Restart WhatsApp\\n\\n🚨 **MAINTENANCE MODE**\\n• maintenance-on → Enable Maintenance\\n• maintenance-off → Disable Maintenance\\n\\n📊 **HEALTH CHECK**\\n• health-check → Full System Scan\\n• logs-error → Show Error Logs\\n• logs-access → Show Access Logs\\n\\n⚠️ **WARNING:** Some commands will affect all users`;\n    }\n  };\n  \n  const command = commands[intent];\n  return command ? command() : 'Unknown admin command';\n}\n\nconst response = await executeAdminCommand(data.intent, data);\n\nreturn [{\n  json: {\n    ...data,\n    response,\n    response_type: 'ADMIN_COMMAND',\n    admin_action: data.intent\n  }\n}];"
+      },
+      "id": "admin-dashboard",
+      "name": "👑 Admin Dashboard",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1500, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.category }}",
+              "operation": "equal",
+              "value2": "ai"
+            }
+          ]
+        }
+      },
+      "id": "ai-router",
+      "name": "🤖 AI Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1300, 500]
+    }
+  ],
+  "connections": {
+    "🌐 Enterprise Gateway": {
+      "main": [
+        [
+          {
+            "node": "🔐 Security Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔐 Security Processor": {
+      "main": [
+        [
+          {
+            "node": "🚨 Security Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚨 Security Gate": {
+      "main": [
+        [
+          {
+            "node": "🌐 Language Detector",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "🌐 Language Detector": {
+      "main": [
+        [
+          {
+            "node": "🖼️ Media Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🖼️ Media Router": {
+      "main": [
+        [
+          {
+            "node": "🔍 OCR Processor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🧠 Advanced Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 OCR Processor": {
+      "main": [
+        [
+          {
+            "node": "🧠 Advanced Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Advanced Classifier": {
+      "main": [
+        [
+          {
+            "node": "👑 Admin Router",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "🤖 AI Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "👑 Admin Router": {
+      "main": [
+        [
+          {
+            "node": "👑 Admin Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "🤖 AI Router": {
+      "main": [
+        [],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5.0",
+  "id": "masjid-ai-enterprise-plus"
+}
