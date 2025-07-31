@@ -1,0 +1,33 @@
+run = "npm start"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+packageSearch = true
+guessImports = true
+enabledForHosting = false
+
+[languages.javascript]
+pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"
+
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["sh", "-c", "npm start"]
+
+[env]
+N8N_HOST = "0.0.0.0"
+N8N_PORT = "3000"
+N8N_PROTOCOL = "https"
+WEBHOOK_URL = "https://$REPL_SLUG.$REPL_OWNER.repl.co"
+N8N_ENDPOINT_WEBHOOK = "webhook"
+N8N_DISABLE_UI = "false"
+N8N_BASIC_AUTH_ACTIVE = "false"
+EXECUTIONS_DATA_SAVE_ON_SUCCESS = "none"
+EXECUTIONS_DATA_SAVE_ON_ERROR = "none"
+EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS = "false"

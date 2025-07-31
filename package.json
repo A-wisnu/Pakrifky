@@ -1,0 +1,32 @@
+{
+  "name": "masjid-ai-replit",
+  "version": "1.0.0",
+  "description": "Masjid AI Assistant running on n8n for Replit",
+  "main": "index.js",
+  "scripts": {
+    "start": "n8n start",
+    "dev": "n8n start --tunnel",
+    "setup": "npm install && node setup.js"
+  },
+  "keywords": [
+    "n8n",
+    "workflow",
+    "masjid",
+    "ai",
+    "whatsapp",
+    "replit"
+  ],
+  "author": "Masjid AI Team",
+  "license": "MIT",
+  "dependencies": {
+    "n8n": "^1.21.1",
+    "moment": "^2.29.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/masjid-ai-replit.git"
+  }
+}
